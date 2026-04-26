@@ -512,7 +512,7 @@ header {
       <div class="page active" id="page-dashboard">
         <div class="grid-4">
           <div class="kpi-card kpi-blue">
-            <div class="kpi-label">Sensors Active</div>
+            <div class="kpi-label">Sensors</div>
             <div class="kpi-value">3/3</div>
             <div class="kpi-sub">Vibration · Current · Temp</div>
           </div>
@@ -754,8 +754,8 @@ header {
           <div class="card">
             <div class="card-title">Threshold Limits</div>
             <div style="margin-bottom:10px">
-              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">15 – 30°C</span></div>
-              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">15 – 30°C</span></div>
+              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">15°C – 30°C</span></div>
+              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">30°C – 40°C</span></div>
               <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 40°C – 70°C</span></div>
             </div>
             <div class="threshold-note"><p>Motor Thermal Protection</p><span>Warning at 30°C · Critical at 40-60°C</span></div>
@@ -774,10 +774,7 @@ header {
           <div class="card-subtitle">Raw readings with 5-point rolling average</div>
           <div class="chart-wrap" style="height:300px"><canvas id="tmp-trend-chart"></canvas></div>
         </div>
-        <div class="grid-2">
-          <div class="card"><div class="card-title">Temperature Distribution</div><div class="card-subtitle">Frequency of readings per thermal band</div><div class="chart-wrap" style="height:240px"><canvas id="tmp-dist-chart"></canvas></div></div>
-          <div class="card"><div class="card-title">Thermal Rate of Rise (Δ°C)</div><div class="card-subtitle">Temperature change per interval</div><div class="chart-wrap" style="height:240px"><canvas id="tmp-roc-chart"></canvas></div></div>
-        </div>
+        
       </div>
 
     </div><!-- /page-inner -->
@@ -826,38 +823,35 @@ function statusColor(s) {
 }
 
 function detectFaults(d) {
-  const f = [];
+  const STATE_FAULTS = {
+  0: [], // stable — no faults
+  1: [{ type:'warning',  param:'Temperature',           msg:'Motor overheating detected',                        val: null, rec:'Check cooling fans and clean air vents' }],
+  2: [{ type:'critical', param:'Vibration',             msg:'Vibrational problem — bearing or mechanical fault', val: null, rec:'Shut down motor and inspect bearings immediately' }],
+  3: [{ type:'critical', param:'Vibration + Temp',      msg:'Vibration fault compounded by thermal stress',      val: null, rec:'Immediate shutdown and full inspection required' }],
+  4: [{ type:'warning',  param:'Current',               msg:'Current fault — check load conditions',             val: null, rec:'Verify load and check for blockage' }],
+  5: [{ type:'critical', param:'Current + Temperature', msg:'Overload with overheating',                         val: null, rec:'Reduce load immediately, verify cooling system' }],
+  6: [{ type:'critical', param:'Current + Vibration',   msg:'Overload with mechanical vibration fault',          val: null, rec:'Reduce load and inspect motor bearings' }],
+  7: [{ type:'critical', param:'All Systems',           msg:'Combined fault — all parameters critical',          val: null, rec:'Emergency shutdown. Full system inspection required' }],
+};
 
-  // Vibration: binary — 1 = fault, 0 = no fault
-  if (d.vibration === 1) {
-    f.push({ type:'critical', param:'Vibration', msg:'Vibration fault detected — Bearing or mechanical failure', val:'FAULT', rec:'Shut down motor and inspect bearings immediately' });
-  }
+function detectFaults(d) {
+  const predClass = d.predClass !== null ? d.predClass : null;
+  if (predClass === null) return [];
 
-  // Current thresholds: warn >8A, critical >10A
-  if (d.current > 10.0) {
-    f.push({ type:'critical', param:'Current', msg:'Critical overload — Risk of motor burnout', val:`${d.current.toFixed(1)} A`, rec:'Reduce motor load or shut down immediately' });
-  } else if (d.current > 8.0) {
-    f.push({ type:'warning', param:'Current', msg:'Above normal current draw — Check load', val:`${d.current.toFixed(1)} A`, rec:'Verify load conditions and check for blockage' });
-  }
+  const baseFaults = (STATE_FAULTS[predClass] || []).map(f => ({
+    ...f,
+    val: predClass === 1 ? `${d.temperature.toFixed(1)}°C`
+       : predClass === 2 ? (d.vibration === 1 ? 'FAULT' : `${d.vibration.toFixed(2)}`)
+       : predClass === 3 ? `V:${d.vibration===1?'FAULT':d.vibration.toFixed(2)} T:${d.temperature.toFixed(1)}°C`
+       : predClass === 4 ? `${d.current.toFixed(1)}A`
+       : predClass === 5 ? `I:${d.current.toFixed(1)}A T:${d.temperature.toFixed(1)}°C`
+       : predClass === 6 ? `I:${d.current.toFixed(1)}A V:${d.vibration===1?'FAULT':d.vibration.toFixed(2)}`
+       : predClass === 7 ? `I:${d.current.toFixed(1)}A V:${d.vibration===1?'FAULT':d.vibration.toFixed(2)} T:${d.temperature.toFixed(1)}°C`
+       : '—'
+  }));
 
-  // Temperature thresholds: warn >60°C, critical >70°C
-  if (d.temperature > 70) {
-    f.push({ type:'critical', param:'Temperature', msg:'Critical temperature — Immediate cooling required', val:`${d.temperature.toFixed(1)}°C`, rec:'Activate emergency cooling and reduce load' });
-  } else if (d.temperature > 60) {
-    f.push({ type:'warning', param:'Temperature', msg:'High temperature — Verify ventilation', val:`${d.temperature.toFixed(1)}°C`, rec:'Check cooling fans and clean air vents' });
-  }
-
-  // Combined fault: vibration fault + high temp
-  if (d.vibration === 1 && d.temperature > 55) {
-    f.push({ type:'critical', param:'Vibration + Temperature', msg:'Bearing fault with thermal stress — compounding risk', val:`V:FAULT T:${d.temperature.toFixed(1)}`, rec:'Immediate shutdown and full inspection required' });
-  }
-
-  // Combined fault: overload + high temp
-  if (d.current > 8.0 && d.temperature > 60) {
-    f.push({ type:'critical', param:'Current + Temperature', msg:'Overload condition with overheating', val:`I:${d.current.toFixed(1)} T:${d.temperature.toFixed(1)}`, rec:'Reduce load immediately, verify cooling system' });
-  }
-
-  return f;
+  return baseFaults;
+}
 }
 
 function calcRolling(vals, w=5) {
@@ -1264,9 +1258,12 @@ try {
         const t = d.timestamp ? new Date(d.timestamp) : new Date();
         return {
           time:        t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),
-          vibration:   +d.vibration   || 0,
+           vibration:   +d.vibration   || 0,
           current:     +d.current     || 0,
           temperature: +d.temperature || 0,
+          score:       d.score !== undefined ? +d.score : null,
+          fault:       d.fault !== undefined ? +d.fault : null,
+          timestamp:   d.timestamp || null,
         };
       });
       updateCharts();
