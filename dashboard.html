@@ -4,82 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MotorGuard — Motor Fault Monitoring</title>
-
-<!-- Chart.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-
-<!-- Firebase v9 compat (works like v8 SDK — easy drop-in) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
-/* ── Reset & Base ─────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg: #f1f5f9;
-  --white: #ffffff;
-  --sidebar: #0f172a;
-  --sidebar-border: #1e293b;
-  --sidebar-hover: #1e293b;
-  --sidebar-active: #4f46e5;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --border: #e2e8f0;
+  --bg: #f1f5f9; --white: #ffffff; --sidebar: #0f172a; --sidebar-border: #1e293b;
+  --sidebar-hover: #1e293b; --sidebar-active: #4f46e5;
+  --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8; --border: #e2e8f0;
   --green: #10b981; --green-bg: #ecfdf5; --green-border: #a7f3d0; --green-text: #065f46;
   --amber: #f59e0b; --amber-bg: #fffbeb; --amber-border: #fde68a; --amber-text: #78350f;
-  --red: #ef4444;   --red-bg: #fef2f2;   --red-border: #fecaca;   --red-text: #7f1d1d;
-  --blue: #3b82f6;
-  --indigo: #6366f1;
+  --red: #ef4444; --red-bg: #fef2f2; --red-border: #fecaca; --red-text: #7f1d1d;
+  --blue: #3b82f6; --indigo: #6366f1;
   --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
-  --radius: 12px;
-  --sidebar-w: 240px;
-  --header-h: 56px;
-  --mono: 'IBM Plex Mono', monospace;
-  --sans: 'IBM Plex Sans', sans-serif;
+  --radius: 12px; --sidebar-w: 240px; --header-h: 56px;
+  --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
 }
-
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--text-primary);
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* ── Sidebar ──────────────────────────────────────────────────────────────── */
-#sidebar {
-  width: var(--sidebar-w);
-  background: var(--sidebar);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow: hidden;
-  transition: width .3s ease;
-}
+body { font-family: var(--sans); background: var(--bg); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+#sidebar { width: var(--sidebar-w); background: var(--sidebar); display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; transition: width .3s ease; }
 #sidebar.collapsed { width: 0; }
-
-.sb-brand {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--sidebar-border);
-  display: flex; align-items: center; gap: 10px;
-}
-.sb-logo {
-  width: 32px; height: 32px; border-radius: 8px;
-  background: var(--indigo);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
+.sb-brand { padding: 16px 20px; border-bottom: 1px solid var(--sidebar-border); display: flex; align-items: center; gap: 10px; }
+.sb-logo { width: 32px; height: 32px; border-radius: 8px; background: var(--indigo); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .sb-logo svg { width: 16px; height: 16px; color: #fff; }
 .sb-brand-text p { color: #fff; font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
 .sb-brand-text span { color: #475569; font-size: 0.65rem; white-space: nowrap; }
-
-.sb-unit {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--sidebar-border);
-}
+.sb-unit { padding: 12px 16px; border-bottom: 1px solid var(--sidebar-border); }
 .sb-unit-label { font-size: 0.6rem; color: #475569; text-transform: uppercase; letter-spacing: .08em; }
 .sb-unit-name { color: #fff; font-weight: 600; font-size: 0.825rem; margin-top: 2px; white-space: nowrap; }
 .sb-unit-status { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
@@ -88,28 +38,14 @@ body {
 .sb-unit-status span { font-size: 0.7rem; color: #34d399; white-space: nowrap; }
 .sb-unit-status.disconnected .pulse-dot { background: #f87171; animation: none; }
 .sb-unit-status.disconnected span { color: #f87171; }
-
 nav { flex: 1; padding: 12px; overflow-y: auto; }
-.nav-item {
-  width: 100%; display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px; border-radius: 8px; border: none;
-  background: transparent; color: #94a3b8;
-  cursor: pointer; font-family: var(--sans); font-size: 0.85rem;
-  transition: background .15s, color .15s;
-  white-space: nowrap;
-}
+.nav-item { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; border: none; background: transparent; color: #94a3b8; cursor: pointer; font-family: var(--sans); font-size: 0.85rem; transition: background .15s, color .15s; white-space: nowrap; }
 .nav-item:hover { background: var(--sidebar-hover); color: #e2e8f0; }
 .nav-item.active { background: var(--sidebar-active); color: #fff; }
 .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
 .nav-dot { width: 8px; height: 8px; border-radius: 50%; margin-left: auto; flex-shrink: 0; }
-.nav-dot.ok { background: #34d399; }
-.nav-dot.warn { background: #fbbf24; }
-.nav-dot.crit { background: #f87171; }
-
-.sb-diagnostics {
-  padding: 16px;
-  border-top: 1px solid var(--sidebar-border);
-}
+.nav-dot.ok { background: #34d399; } .nav-dot.warn { background: #fbbf24; } .nav-dot.crit { background: #f87171; }
+.sb-diagnostics { padding: 16px; border-top: 1px solid var(--sidebar-border); }
 .sb-diag-label { font-size: 0.6rem; color: #475569; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
 .diag-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 .diag-row span { font-size: 0.75rem; color: #64748b; }
@@ -119,128 +55,55 @@ nav { flex: 1; padding: 12px; overflow-y: auto; }
 .diag-live-row .left span { font-size: 0.7rem; color: #64748b; }
 .diag-live-row .val { font-size: 0.7rem; color: #94a3b8; font-family: var(--mono); }
 .mini-dot { width: 6px; height: 6px; border-radius: 50%; }
-
-.sb-footer {
-  padding: 12px 16px;
-  border-top: 1px solid var(--sidebar-border);
-  display: flex; align-items: center; justify-content: space-between;
-}
+.sb-footer { padding: 12px 16px; border-top: 1px solid var(--sidebar-border); display: flex; align-items: center; justify-content: space-between; }
 .sb-footer span { font-size: 0.65rem; color: #475569; }
-
-/* ── Main ────────────────────────────────────────────────────────────────── */
-#main {
-  flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0;
-}
-
-/* ── Header ──────────────────────────────────────────────────────────────── */
-header {
-  height: var(--header-h);
-  background: #fff;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px;
-  box-shadow: var(--shadow);
-  flex-shrink: 0;
-  gap: 12px;
-}
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+header { height: var(--header-h); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: var(--shadow); flex-shrink: 0; gap: 12px; }
 .header-left { display: flex; align-items: center; gap: 10px; }
-#sidebar-toggle {
-  background: none; border: none; cursor: pointer;
-  padding: 6px; border-radius: 8px;
-  color: #64748b; transition: background .15s;
-}
+#sidebar-toggle { background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; color: #64748b; transition: background .15s; }
 #sidebar-toggle:hover { background: #f1f5f9; }
 #sidebar-toggle svg { width: 18px; height: 18px; }
 .breadcrumb { font-size: 0.875rem; display: flex; align-items: center; gap: 6px; }
-.breadcrumb .parent { color: #94a3b8; }
-.breadcrumb .chevron { color: #cbd5e1; }
-.breadcrumb .current { color: var(--text-primary); font-weight: 600; }
-
+.breadcrumb .parent { color: #94a3b8; } .breadcrumb .chevron { color: #cbd5e1; } .breadcrumb .current { color: var(--text-primary); font-weight: 600; }
 .header-right { display: flex; align-items: center; gap: 12px; }
-.header-badge {
-  display: flex; align-items: center; gap: 6px;
-  padding: 4px 10px; border-radius: 8px; border: 1px solid;
-  font-size: 0.75rem; font-weight: 600; white-space: nowrap;
-}
+.header-badge { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; border: 1px solid; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
 .badge-green { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
 .badge-amber { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber-text); }
-.badge-red   { background: var(--red-bg);   border-color: var(--red-border);   color: var(--red-text); }
+.badge-red { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
 .badge-slate { background: #f8fafc; border-color: #e2e8f0; color: #475569; }
 .bell-wrap { position: relative; }
-#bell-btn {
-  background: none; border: none; cursor: pointer;
-  padding: 6px; border-radius: 8px; color: #64748b;
-  transition: background .15s;
-}
+#bell-btn { background: none; border: none; cursor: pointer; padding: 6px; border-radius: 8px; color: #64748b; transition: background .15s; }
 #bell-btn:hover { background: #f1f5f9; }
 #bell-btn svg { width: 18px; height: 18px; }
-#bell-badge {
-  position: absolute; top: -2px; right: -2px;
-  width: 16px; height: 16px; border-radius: 50%;
-  background: var(--red); color: #fff;
-  font-size: 0.55rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
+#bell-badge { position: absolute; top: -2px; right: -2px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 0.55rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 #bell-badge.hidden { display: none; }
 .clock-wrap { display: flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 0.8rem; font-family: var(--mono); }
 .clock-wrap svg { width: 14px; height: 14px; }
-
-#error-banner {
-  background: var(--red-bg); border-bottom: 1px solid var(--red-border);
-  color: var(--red-text); font-size: 0.85rem;
-  padding: 8px 20px; display: flex; align-items: center; gap: 8px;
-}
+#error-banner { background: var(--red-bg); border-bottom: 1px solid var(--red-border); color: var(--red-text); font-size: 0.85rem; padding: 8px 20px; display: flex; align-items: center; gap: 8px; }
 #error-banner.hidden { display: none; }
-
-/* ── Page Content ────────────────────────────────────────────────────────── */
 #content { flex: 1; overflow-y: auto; }
 .page-inner { padding: 24px; max-width: 1600px; margin: 0 auto; }
-
-.page { display: none; }
-.page.active { display: block; }
-
-/* ── Cards & Grids ───────────────────────────────────────────────────────── */
-.card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 20px;
-}
+.page { display: none; } .page.active { display: block; }
+.card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
 .card-title { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 4px; }
 .card-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; }
-
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
 .grid-1 { margin-bottom: 20px; }
-
 @media (max-width: 1200px) { .grid-4 { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 900px)  { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
-@media (max-width: 600px)  { .grid-4 { grid-template-columns: 1fr; } }
-
-/* ── KPI Cards ───────────────────────────────────────────────────────────── */
-.kpi-card {
-  background: #fff; border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px 18px;
-  box-shadow: var(--shadow);
-}
+@media (max-width: 900px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .grid-4 { grid-template-columns: 1fr; } }
+.kpi-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
 .kpi-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
 .kpi-value { font-family: var(--mono); font-size: 1.9rem; font-weight: 600; line-height: 1; }
 .kpi-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
-.kpi-card.kpi-green .kpi-value { color: var(--green); }
-.kpi-card.kpi-amber .kpi-value { color: var(--amber); }
-.kpi-card.kpi-red   .kpi-value { color: var(--red); }
-.kpi-card.kpi-blue  .kpi-value { color: var(--blue); }
-
-/* ── Reading Card ─────────────────────────────────────────────────────────── */
-.reading-card {
-  border-radius: var(--radius); padding: 20px;
-  box-shadow: var(--shadow);
-}
-.reading-card.st-normal  { background: var(--green-bg); border: 1px solid var(--green-border); }
+.kpi-card.kpi-green .kpi-value { color: var(--green); } .kpi-card.kpi-amber .kpi-value { color: var(--amber); }
+.kpi-card.kpi-red .kpi-value { color: var(--red); } .kpi-card.kpi-blue .kpi-value { color: var(--blue); }
+.reading-card { border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+.reading-card.st-normal { background: var(--green-bg); border: 1px solid var(--green-border); }
 .reading-card.st-warning { background: var(--amber-bg); border: 1px solid var(--amber-border); }
-.reading-card.st-critical{ background: var(--red-bg);   border: 1px solid var(--red-border); }
+.reading-card.st-critical { background: var(--red-bg); border: 1px solid var(--red-border); }
 .reading-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .reading-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 .reading-icon svg { width: 18px; height: 18px; }
@@ -249,64 +112,39 @@ header {
 .reading-number { font-family: var(--mono); font-size: 2.8rem; font-weight: 600; line-height: 1; }
 .reading-unit { font-size: 0.9rem; color: var(--text-muted); }
 .reading-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-.status-badge {
-  padding: 2px 8px; border-radius: 5px; font-size: 0.72rem; font-weight: 700; letter-spacing: .04em;
-}
-.st-normal .status-badge  { background: var(--green); color: #fff; }
+.status-badge { padding: 2px 8px; border-radius: 5px; font-size: 0.72rem; font-weight: 700; letter-spacing: .04em; }
+.st-normal .status-badge { background: var(--green); color: #fff; }
 .st-warning .status-badge { background: var(--amber); color: #fff; }
 .st-critical .status-badge { background: var(--red); color: #fff; }
 .trend-label { font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
-.trend-up   { color: var(--red); }
-.trend-down { color: var(--green); }
-.trend-stable { color: var(--text-muted); }
-
+.trend-up { color: var(--red); } .trend-down { color: var(--green); } .trend-stable { color: var(--text-muted); }
 .progress-wrap { margin-bottom: 0; }
 .progress-labels { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); margin-bottom: 4px; }
 .progress-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,.6); overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 4px; transition: width .7s ease; }
 .progress-ticks { display: flex; justify-content: space-between; font-size: 0.65rem; margin-top: 3px; }
-
-/* ── Threshold List ───────────────────────────────────────────────────────── */
-.threshold-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px; border-radius: 8px; border: 1px solid;
-  margin-bottom: 8px;
-}
-.threshold-row.ok   { background: var(--green-bg); border-color: var(--green-border); }
+.threshold-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; border: 1px solid; margin-bottom: 8px; }
+.threshold-row.ok { background: var(--green-bg); border-color: var(--green-border); }
 .threshold-row.warn { background: var(--amber-bg); border-color: var(--amber-border); }
-.threshold-row.crit { background: var(--red-bg);   border-color: var(--red-border); }
+.threshold-row.crit { background: var(--red-bg); border-color: var(--red-border); }
 .threshold-row .tl { display: flex; align-items: center; gap: 8px; }
 .threshold-row .tdot { width: 8px; height: 8px; border-radius: 50%; }
 .threshold-row .tname { font-size: 0.8rem; color: var(--text-secondary); }
 .threshold-row .trange { font-weight: 600; font-size: 0.8rem; }
-.threshold-row.ok   .trange { color: var(--green-text); }
-.threshold-row.warn .trange { color: var(--amber-text); }
-.threshold-row.crit .trange { color: var(--red-text); }
+.threshold-row.ok .trange { color: var(--green-text); } .threshold-row.warn .trange { color: var(--amber-text); } .threshold-row.crit .trange { color: var(--red-text); }
 .threshold-note { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-top: 8px; }
 .threshold-note p { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
 .threshold-note span { font-size: 0.7rem; color: var(--text-muted); }
-
-/* ── Stats Table ─────────────────────────────────────────────────────────── */
 .stat-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #f8fafc; }
 .stat-row:last-child { border-bottom: none; }
-.stat-label { font-size: 0.8rem; color: var(--text-muted); }
-.stat-val { font-size: 0.8rem; font-weight: 600; font-family: var(--mono); }
-
-/* ── Health Gauge ─────────────────────────────────────────────────────────── */
+.stat-label { font-size: 0.8rem; color: var(--text-muted); } .stat-val { font-size: 0.8rem; font-weight: 600; font-family: var(--mono); }
 .health-gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 #health-svg { width: 200px; height: 200px; }
 .health-legend { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; width: 100%; }
 .health-legend-item { border-radius: 8px; padding: 6px 8px; text-align: center; }
-.health-legend-item .lv { font-weight: 700; font-size: 0.7rem; }
-.health-legend-item .ll { font-size: 0.65rem; }
-.hl-green { background: var(--green-bg); color: var(--green-text); }
-.hl-amber { background: var(--amber-bg); color: var(--amber-text); }
-.hl-red   { background: var(--red-bg);   color: var(--red-text); }
-
-/* ── Chart Wrap ─────────────────────────────────────────────────────────── */
+.health-legend-item .lv { font-weight: 700; font-size: 0.7rem; } .health-legend-item .ll { font-size: 0.65rem; }
+.hl-green { background: var(--green-bg); color: var(--green-text); } .hl-amber { background: var(--amber-bg); color: var(--amber-text); } .hl-red { background: var(--red-bg); color: var(--red-text); }
 .chart-wrap { position: relative; width: 100%; }
-
-/* ── Fault Summary ────────────────────────────────────────────────────────── */
 .fault-counts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .fault-count-box { border-radius: 10px; padding: 14px; border: 1px solid; }
 .fault-count-box .fn { font-size: 1.8rem; font-weight: 700; font-family: var(--mono); }
@@ -314,32 +152,37 @@ header {
 .fc-crit { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
 .fc-warn { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber-text); }
 .fc-empty { background: #f8fafc; border-color: var(--border); color: var(--text-muted); }
-
 .fault-list { display: flex; flex-direction: column; gap: 8px; max-height: 160px; overflow-y: auto; }
 .fault-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid; }
 .fault-item.fc { background: var(--red-bg); border-color: var(--red-border); }
 .fault-item.fw { background: var(--amber-bg); border-color: var(--amber-border); }
 .fault-item svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
-.fault-item.fc svg { color: var(--red); }
-.fault-item.fw svg { color: var(--amber); }
+.fault-item.fc svg { color: var(--red); } .fault-item.fw svg { color: var(--amber); }
 .fault-param { font-weight: 600; font-size: 0.78rem; }
-.fault-item.fc .fault-param { color: #7f1d1d; }
-.fault-item.fw .fault-param { color: #78350f; }
+.fault-item.fc .fault-param { color: #7f1d1d; } .fault-item.fw .fault-param { color: #78350f; }
 .fault-msg { font-size: 0.75rem; margin-top: 1px; }
-.fault-item.fc .fault-msg { color: #991b1b; }
-.fault-item.fw .fault-msg { color: #92400e; }
+.fault-item.fc .fault-msg { color: #991b1b; } .fault-item.fw .fault-msg { color: #92400e; }
 .fault-rec { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
 .fault-val { font-family: var(--mono); font-size: 0.72rem; margin-left: auto; flex-shrink: 0; }
-.fault-item.fc .fault-val { color: var(--red); }
-.fault-item.fw .fault-val { color: var(--amber); }
-
+.fault-item.fc .fault-val { color: var(--red); } .fault-item.fw .fault-val { color: var(--amber); }
 .no-fault-box { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px 0; gap: 10px; }
 .no-fault-box svg { width: 44px; height: 44px; color: var(--green); }
 .no-fault-box p { font-weight: 600; color: #065f46; }
 .no-fault-box span { font-size: 0.8rem; color: var(--text-muted); }
 .fault-footer { border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 10px; font-size: 0.7rem; color: var(--text-muted); }
 
-/* ── Correlation Matrix ───────────────────────────────────────────────────── */
+/* ML Fault Label Badge */
+.ml-fault-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 8px; border: 1px solid;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: .04em;
+  margin-bottom: 12px;
+}
+.ml-fault-badge.stable     { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+.ml-fault-badge.warning    { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber-text); }
+.ml-fault-badge.critical   { background: var(--red-bg);   border-color: var(--red-border);   color: var(--red-text); }
+.ml-fault-badge.none       { background: #f8fafc; border-color: var(--border); color: var(--text-muted); }
+
 .matrix-table { width: 100%; font-size: 0.75rem; border-collapse: collapse; }
 .matrix-table th { color: var(--text-muted); font-weight: 500; padding: 4px 8px 8px; text-align: center; }
 .matrix-table th:first-child { text-align: left; }
@@ -347,35 +190,18 @@ header {
 .matrix-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .matrix-dot { width: 10px; height: 10px; border-radius: 50%; }
 .matrix-lbl { font-size: 0.6rem; font-weight: 600; }
-.matrix-dot.ok   { background: var(--green); }
-.matrix-dot.warn { background: var(--amber); }
-.matrix-dot.crit { background: var(--red); }
-.matrix-lbl.ok   { color: var(--green-text); }
-.matrix-lbl.warn { color: var(--amber-text); }
-.matrix-lbl.crit { color: var(--red-text); }
+.matrix-dot.ok { background: var(--green); } .matrix-dot.warn { background: var(--amber); } .matrix-dot.crit { background: var(--red); }
+.matrix-lbl.ok { color: var(--green-text); } .matrix-lbl.warn { color: var(--amber-text); } .matrix-lbl.crit { color: var(--red-text); }
 .matrix-combined { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; border: 1px solid; margin-top: 10px; }
-
-/* ── Page Header ─────────────────────────────────────────────────────────── */
 .page-hdr { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
 .page-hdr-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .page-hdr-icon svg { width: 20px; height: 20px; }
-.page-hdr-icon.blue { background: #dbeafe; color: #1d4ed8; }
-.page-hdr-icon.green { background: #d1fae5; color: #065f46; }
-.page-hdr-icon.amber { background: #fef3c7; color: #92400e; }
-.page-hdr h2 { font-weight: 700; font-size: 1.1rem; }
-.page-hdr p  { font-size: 0.85rem; color: var(--text-muted); }
-
-/* ── Scrollbar ────────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-/* ── Live indicator ───────────────────────────────────────────────────────── */
+.page-hdr-icon.blue { background: #dbeafe; color: #1d4ed8; } .page-hdr-icon.green { background: #d1fae5; color: #065f46; } .page-hdr-icon.amber { background: #fef3c7; color: #92400e; }
+.page-hdr h2 { font-weight: 700; font-size: 1.1rem; } .page-hdr p { font-size: 0.85rem; color: var(--text-muted); }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 .live-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; }
 .live-pill .ldot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; animation: pulse 1.6s ease-in-out infinite; }
 .live-pill span { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
-
-/* ── Thermal headroom ────────────────────────────────────────────────────── */
 .sub-metric { background: rgba(255,255,255,.6); border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
 .sub-metric-row { display: flex; align-items: center; justify-content: space-between; }
 .sub-metric-row span { font-size: 0.75rem; color: var(--text-secondary); }
@@ -383,16 +209,11 @@ header {
 .sub-metric-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,.5); margin-top: 6px; overflow: hidden; }
 .sub-metric-fill { height: 100%; border-radius: 3px; transition: width .7s; }
 .sub-metric-note { font-size: 0.65rem; color: var(--text-muted); margin-top: 3px; }
-
-@media (max-width: 768px) {
-  :root { --sidebar-w: 200px; }
-  .clock-wrap, #health-header-badge { display: none !important; }
-}
+@media (max-width: 768px) { :root { --sidebar-w: 200px; } .clock-wrap, #health-header-badge { display: none !important; } }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════════════ SIDEBAR -->
 <aside id="sidebar">
   <div class="sb-brand">
     <div class="sb-logo">
@@ -402,12 +223,8 @@ header {
         <line x1="1" y1="8" x2="3" y2="8"/><line x1="13" y1="8" x2="15" y2="8"/>
       </svg>
     </div>
-    <div class="sb-brand-text">
-      <p>MotorGuard</p>
-      <span>Monitoring System v2.1</span>
-    </div>
+    <div class="sb-brand-text"><p>MotorGuard</p><span>Monitoring System v2.1</span></div>
   </div>
-
   <div class="sb-unit">
     <div class="sb-unit-label">Active Unit</div>
     <div class="sb-unit-name">Motor Unit A1-04</div>
@@ -416,7 +233,6 @@ header {
       <span id="sb-status-text">Connecting...</span>
     </div>
   </div>
-
   <nav>
     <button class="nav-item active" data-page="dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -424,48 +240,31 @@ header {
     </button>
     <button class="nav-item" data-page="vibration">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Vibration
-      <span class="nav-dot ok" id="nav-dot-vib"></span>
+      Vibration<span class="nav-dot ok" id="nav-dot-vib"></span>
     </button>
     <button class="nav-item" data-page="current">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Current
-      <span class="nav-dot ok" id="nav-dot-cur"></span>
+      Current<span class="nav-dot ok" id="nav-dot-cur"></span>
     </button>
     <button class="nav-item" data-page="temperature">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
-      Temperature
-      <span class="nav-dot ok" id="nav-dot-tmp"></span>
+      Temperature<span class="nav-dot ok" id="nav-dot-tmp"></span>
     </button>
   </nav>
-
   <div class="sb-diagnostics">
     <div class="sb-diag-label">Live Diagnostics</div>
-    <div class="diag-row">
-      <span>Health Score</span>
-      <span class="diag-val" id="sb-health" style="color:#10b981">—</span>
-    </div>
-    <div class="diag-row">
-      <span>ML Score</span>
-      <span class="diag-val" id="sb-ml-score" style="color:#94a3b8">—</span>
-    </div>
-    <div class="diag-row">
-      <span>Fault Status</span>
-      <span class="diag-val" id="sb-fault-status" style="color:#94a3b8">—</span>
-    </div>
+    <div class="diag-row"><span>Health Score</span><span class="diag-val" id="sb-health" style="color:#10b981">—</span></div>
+    <div class="diag-row"><span>ML Fault Label</span><span class="diag-val" id="sb-fault-label" style="color:#94a3b8;font-size:0.65rem">—</span></div>
+    <div class="diag-row"><span>Status Code</span><span class="diag-val" id="sb-fault-status" style="color:#94a3b8">—</span></div>
     <div style="margin-top:10px">
       <div class="diag-live-row"><div class="left"><div class="mini-dot ok" id="ml-vib"></div><span>Vibration</span></div><span class="val" id="ml-vib-val">—</span></div>
       <div class="diag-live-row"><div class="left"><div class="mini-dot ok" id="ml-cur"></div><span>Current</span></div><span class="val" id="ml-cur-val">—</span></div>
       <div class="diag-live-row"><div class="left"><div class="mini-dot ok" id="ml-tmp"></div><span>Temp.</span></div><span class="val" id="ml-tmp-val">—</span></div>
     </div>
   </div>
-
-  <div class="sb-footer">
-    <span>⚙ IEC 60034 Compliant</span>
-  </div>
+  <div class="sb-footer"><span>⚙ IEC 60034 Compliant</span></div>
 </aside>
 
-<!-- ════════════════════════════════════════════════════════════════ MAIN -->
 <div id="main">
   <header>
     <div class="header-left">
@@ -473,8 +272,7 @@ header {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
       <div class="breadcrumb">
-        <span class="parent">Motor A1-04</span>
-        <span class="chevron">›</span>
+        <span class="parent">Motor A1-04</span><span class="chevron">›</span>
         <span class="current" id="page-title">Dashboard</span>
       </div>
     </div>
@@ -484,9 +282,7 @@ header {
         Connecting…
       </div>
       <div class="bell-wrap">
-        <button id="bell-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        </button>
+        <button id="bell-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
         <div id="bell-badge" class="hidden">0</div>
       </div>
       <div class="header-badge" id="health-header-badge" style="background:var(--green-bg);border-color:var(--green-border);color:var(--green-text)">
@@ -499,47 +295,25 @@ header {
       </div>
     </div>
   </header>
-
   <div id="error-banner" class="hidden">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5.07 5.07a10 10 0 0 0 13.86 13.86M1 1l22 22"/></svg>
     <span id="error-text">Firestore error. Check your config.</span>
   </div>
-
   <div id="content">
     <div class="page-inner">
 
-      <!-- ═══════════════════════════════════ PAGE: DASHBOARD -->
+      <!-- DASHBOARD PAGE -->
       <div class="page active" id="page-dashboard">
         <div class="grid-4">
-          <div class="kpi-card kpi-blue">
-            <div class="kpi-label">Sensors</div>
-            <div class="kpi-value">3/3</div>
-            <div class="kpi-sub">Vibration · Current · Temp</div>
-          </div>
-          <div class="kpi-card kpi-red" id="kpi-faults-card">
-            <div class="kpi-label">Active Faults</div>
-            <div class="kpi-value" id="kpi-faults">—</div>
-            <div class="kpi-sub" id="kpi-faults-sub">Awaiting data</div>
-          </div>
-          <div class="kpi-card kpi-green">
-            <div class="kpi-label">Health Score (ML)</div>
-            <div class="kpi-value" id="kpi-health">—</div>
-            <div class="kpi-sub">/ 100 · Keras model</div>
-          </div>
-          <div class="kpi-card kpi-amber">
-            <div class="kpi-label">Last Update</div>
-            <div class="kpi-value" style="font-size:1.1rem;margin-top:6px" id="kpi-lastupdate">—</div>
-            <div class="kpi-sub">Arduino → Firestore</div>
-          </div>
+          <div class="kpi-card kpi-blue"><div class="kpi-label">Sensors Active</div><div class="kpi-value">3/3</div><div class="kpi-sub">Vibration · Current · Temp</div></div>
+          <div class="kpi-card kpi-red" id="kpi-faults-card"><div class="kpi-label">Active Faults</div><div class="kpi-value" id="kpi-faults">—</div><div class="kpi-sub" id="kpi-faults-sub">Awaiting data</div></div>
+          <div class="kpi-card kpi-green"><div class="kpi-label">Health Score (ML)</div><div class="kpi-value" id="kpi-health">—</div><div class="kpi-sub">/ 100 · Keras model</div></div>
+          <div class="kpi-card kpi-amber"><div class="kpi-label">Last Update</div><div class="kpi-value" style="font-size:1.1rem;margin-top:6px" id="kpi-lastupdate">—</div><div class="kpi-sub">Arduino → Firestore</div></div>
         </div>
-
         <div class="grid-3" style="align-items:start">
           <!-- Health Gauge -->
           <div class="card" style="display:flex;flex-direction:column;align-items:center;gap:12px">
-            <div style="text-align:center">
-              <div class="card-title">Motor Health Score</div>
-              <div class="card-subtitle" style="margin-bottom:0">Keras model output (real-time)</div>
-            </div>
+            <div style="text-align:center"><div class="card-title">Motor Health Score</div><div class="card-subtitle" style="margin-bottom:0">Keras model output (real-time)</div></div>
             <div class="health-gauge-wrap">
               <svg id="health-svg" viewBox="0 0 200 200">
                 <circle cx="100" cy="100" r="72" fill="none" stroke="#e2e8f0" stroke-width="13" stroke-dasharray="339.3 113.1" stroke-linecap="round" transform="rotate(135,100,100)"/>
@@ -557,55 +331,45 @@ header {
               <div class="health-legend-item hl-red"><div class="lv">&lt;60</div><div class="ll">Critical</div></div>
             </div>
           </div>
-
           <!-- Radar Chart -->
           <div class="card">
             <div class="card-title">Parameter Stress Levels</div>
             <div class="card-subtitle">% of critical threshold</div>
-            <div class="chart-wrap" style="height:240px">
-              <canvas id="radar-chart"></canvas>
-            </div>
+            <div class="chart-wrap" style="height:240px"><canvas id="radar-chart"></canvas></div>
           </div>
-
-          <!-- Fault Summary -->
+          <!-- Fault Summary — ML label driven -->
           <div class="card">
             <div class="card-title" style="margin-bottom:14px">Fault Summary</div>
+            <!-- ML fault label badge -->
+            <div id="ml-fault-label-wrap" style="margin-bottom:12px">
+              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">ML Diagnosis (healthtrain model)</div>
+              <div class="ml-fault-badge none" id="ml-fault-badge-main">— Awaiting data</div>
+            </div>
             <div class="fault-counts">
-              <div class="fault-count-box fc-empty" id="fc-crit-box">
-                <div class="fn" id="fc-crit-num">—</div>
-                <div class="fl">Critical</div>
-              </div>
-              <div class="fault-count-box fc-empty" id="fc-warn-box">
-                <div class="fn" id="fc-warn-num">—</div>
-                <div class="fl">Warnings</div>
-              </div>
+              <div class="fault-count-box fc-empty" id="fc-crit-box"><div class="fn" id="fc-crit-num">—</div><div class="fl">Critical</div></div>
+              <div class="fault-count-box fc-empty" id="fc-warn-box"><div class="fn" id="fc-warn-num">—</div><div class="fl">Warnings</div></div>
             </div>
             <div id="fault-list-wrap"><div class="no-fault-box"><span>Awaiting sensor data…</span></div></div>
-            <div class="fault-footer">Source: Firestore · PredictionData/latest</div>
+            <div class="fault-footer">ML: healthtrain STATE_MAP · Firestore: PredictionData/latest</div>
           </div>
         </div>
-
         <!-- Trend chart -->
         <div class="card grid-1">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-            <div>
-              <div class="card-title">Live Parameter Monitoring</div>
-              <div class="card-subtitle" style="margin-bottom:0">Normalized to % of critical threshold — last 60 readings from Firestore history</div>
-            </div>
+            <div><div class="card-title">Live Parameter Monitoring</div><div class="card-subtitle" style="margin-bottom:0">Normalized % of critical threshold — last 60 readings</div></div>
             <div class="live-pill"><div class="ldot"></div><span>LIVE</span></div>
           </div>
-          <div class="chart-wrap" style="height:280px">
-            <canvas id="trend-chart"></canvas>
-          </div>
+          <div class="chart-wrap" style="height:280px"><canvas id="trend-chart"></canvas></div>
         </div>
-
         <!-- Fault Detail + Matrix -->
         <div class="grid-2">
           <div class="card">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <div class="card-title" style="margin-bottom:0">Fault Detection & Diagnosis</div>
+              <div class="card-title" style="margin-bottom:0">Fault Detection &amp; Diagnosis</div>
             </div>
+            <!-- ML label displayed prominently -->
+            <div id="ml-fault-detail-label" style="margin-bottom:12px"></div>
             <div id="fault-detail-wrap"><div class="no-fault-box"><span>Awaiting sensor data…</span></div></div>
           </div>
           <div class="card">
@@ -618,7 +382,7 @@ header {
               <tbody id="matrix-body"></tbody>
             </table>
             <div class="matrix-combined card" id="matrix-combined" style="margin-top:10px;padding:8px 12px;border-radius:8px">
-              <span style="font-size:0.75rem;color:var(--text-secondary);font-weight:500">Combined (All)</span>
+              <span style="font-size:0.75rem;color:var(--text-secondary);font-weight:500">Combined (ML: all)</span>
               <div style="display:flex;align-items:center;gap:6px">
                 <div class="matrix-dot ok" id="matrix-combined-dot"></div>
                 <span class="matrix-lbl ok" id="matrix-combined-lbl">—</span>
@@ -628,11 +392,11 @@ header {
         </div>
       </div>
 
-      <!-- ═══════════════════════════════════ PAGE: VIBRATION -->
+      <!-- VIBRATION PAGE -->
       <div class="page" id="page-vibration">
         <div class="page-hdr">
           <div class="page-hdr-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-          <div><h2>Vibration Analysis</h2><p>Detailed vibration monitoring, trend analysis & bearing diagnostics</p></div>
+          <div><h2>Vibration Analysis</h2><p>Binary fault signal monitoring from ML classifier</p></div>
         </div>
         <div class="grid-3">
           <div class="reading-card st-normal" id="vib-reading-card">
@@ -640,9 +404,7 @@ header {
               <div class="reading-icon" style="background:rgba(255,255,255,.6)"><svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
               <span class="reading-header-label">Vibration Sensor</span>
             </div>
-            <div class="reading-big" style="margin-bottom:12px">
-              <span class="reading-number" id="vib-big" style="font-size:2rem">—</span>
-            </div>
+            <div class="reading-big" style="margin-bottom:12px"><span class="reading-number" id="vib-big" style="font-size:2rem">—</span></div>
             <div class="reading-meta"><span class="status-badge" id="vib-badge">—</span></div>
             <div style="margin-top:14px;padding:10px 12px;background:rgba(255,255,255,.6);border-radius:8px;font-size:0.78rem;color:var(--text-secondary)">
               <strong style="display:block;margin-bottom:4px">Binary Fault Signal</strong>
@@ -655,29 +417,26 @@ header {
               <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">No Fault</span></div><span class="trange">Signal = 0</span></div>
               <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Fault Detected</span></div><span class="trange">Signal = 1</span></div>
             </div>
-            <div class="threshold-note"><p>ML Classifier Output</p><span>Random Forest model — binary fault classification</span></div>
+            <div class="threshold-note"><p>ML Classifier Output</p><span>healthtrain Random Forest — binary vibration classification</span></div>
           </div>
-          <div class="card">
-            <div class="card-title">Vibration History</div>
-            <div id="vib-history-wrap" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto"></div>
-          </div>
+          <div class="card"><div class="card-title">Vibration History</div><div id="vib-history-wrap" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto"></div></div>
         </div>
         <div class="card grid-1">
-          <div class="card-title">Vibration Trend — Time Series</div>
-          <div class="card-subtitle">Live Firestore data with warning and critical threshold markers</div>
+          <div class="card-title">Vibration Fault Signal — Time Series</div>
+          <div class="card-subtitle">Binary fault signal (0 = OK, 1 = Fault)</div>
           <div class="chart-wrap" style="height:300px"><canvas id="vib-trend-chart"></canvas></div>
         </div>
         <div class="grid-2">
-          <div class="card"><div class="card-title">Amplitude Distribution</div><div class="card-subtitle">Frequency of readings in each severity band</div><div class="chart-wrap" style="height:240px"><canvas id="vib-dist-chart"></canvas></div></div>
-          <div class="card"><div class="card-title">Rate of Change (Δ mm/s)</div><div class="card-subtitle">Rate of vibration change per reading</div><div class="chart-wrap" style="height:240px"><canvas id="vib-roc-chart"></canvas></div></div>
+          <div class="card"><div class="card-title">Fault Signal Distribution</div><div class="card-subtitle">Count of fault vs no-fault readings</div><div class="chart-wrap" style="height:240px"><canvas id="vib-dist-chart"></canvas></div></div>
+          <div class="card"><div class="card-title">Fault Signal Change (Δ)</div><div class="card-subtitle">Transitions in fault signal per reading</div><div class="chart-wrap" style="height:240px"><canvas id="vib-roc-chart"></canvas></div></div>
         </div>
       </div>
 
-      <!-- ═══════════════════════════════════ PAGE: CURRENT -->
+      <!-- CURRENT PAGE -->
       <div class="page" id="page-current">
         <div class="page-hdr">
           <div class="page-hdr-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-          <div><h2>Current Analysis</h2><p>Motor current draw monitoring, load analysis & overload detection</p></div>
+          <div><h2>Current Analysis</h2><p>Motor current draw monitoring, load analysis &amp; overload detection</p></div>
         </div>
         <div class="grid-3">
           <div class="reading-card st-normal" id="cur-reading-card">
@@ -688,9 +447,9 @@ header {
             <div class="reading-big"><span class="reading-number" id="cur-big">—</span><span class="reading-unit">A</span></div>
             <div class="reading-meta"><span class="status-badge" id="cur-badge">—</span><span class="trend-label trend-stable" id="cur-trend">—</span></div>
             <div class="progress-wrap">
-              <div class="progress-labels"><span>0 A</span><span id="cur-pct">—</span><span>0.5</span></div>
+              <div class="progress-labels"><span>0 A</span><span id="cur-pct">—</span><span>10 A</span></div>
               <div class="progress-bar"><div class="progress-fill" id="cur-bar" style="width:0%;background:var(--green)"></div></div>
-              <div class="progress-ticks" style="font-size:.65rem"><span style="color:var(--amber)">↑ Warn: 0.3A</span><span style="color:var(--red)">Crit: 10A ↑</span></div>
+              <div class="progress-ticks" style="font-size:.65rem"><span style="color:var(--amber)">↑ Warn: 8A</span><span style="color:var(--red)">Crit: 10A ↑</span></div>
             </div>
             <div class="sub-metric">
               <div class="sub-metric-row"><span>Motor Load</span><strong id="cur-load" style="color:var(--green)">—</strong></div>
@@ -700,18 +459,17 @@ header {
           <div class="card">
             <div class="card-title">Threshold Limits</div>
             <div style="margin-bottom:10px">
-              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">0 – 0.3 A</span></div>
-              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">0.3 – 0.5 A</span></div>
-              <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 0.5 A</span></div>
+              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">0 – 8 A</span></div>
+              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">8 – 10 A</span></div>
+              <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 10 A</span></div>
             </div>
             <div class="threshold-note"><p>Rated Motor Current</p><span>Warning at 8A · Critical at 10A</span></div>
           </div>
           <div class="card">
-            <div class="card-title">No Current Fault</div>
+            <div class="card-title">Current Status</div>
             <div class="no-fault-box" id="cur-no-fault-box">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              <p>No Current Fault</p>
-              <span id="cur-no-fault-text">Current within normal range</span>
+              <p>No Current Fault</p><span id="cur-no-fault-text">Current within normal range</span>
             </div>
           </div>
         </div>
@@ -726,11 +484,11 @@ header {
         </div>
       </div>
 
-      <!-- ═══════════════════════════════════ PAGE: TEMPERATURE -->
+      <!-- TEMPERATURE PAGE -->
       <div class="page" id="page-temperature">
         <div class="page-hdr">
           <div class="page-hdr-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
-          <div><h2>Temperature Analysis</h2><p>Thermal monitoring, heat dissipation analysis & overheating prevention</p></div>
+          <div><h2>Temperature Analysis</h2><p>Thermal monitoring, heat dissipation analysis &amp; overheating prevention</p></div>
         </div>
         <div class="grid-3">
           <div class="reading-card st-normal" id="tmp-reading-card">
@@ -741,31 +499,30 @@ header {
             <div class="reading-big"><span class="reading-number" id="tmp-big">—</span><span class="reading-unit">°C</span></div>
             <div class="reading-meta"><span class="status-badge" id="tmp-badge">—</span><span class="trend-label trend-stable" id="tmp-trend">—</span></div>
             <div class="progress-wrap">
-              <div class="progress-labels"><span>0°C</span><span id="tmp-pct">—</span><span>15-30°C</span></div>
+              <div class="progress-labels"><span>0°C</span><span id="tmp-pct">—</span><span>70°C</span></div>
               <div class="progress-bar"><div class="progress-fill" id="tmp-bar" style="width:0%;background:var(--green)"></div></div>
-              <div class="progress-ticks" style="font-size:.65rem"><span style="color:var(--amber)">↑ Warn: 30°C</span><span style="color:var(--red)">Crit: 70°C ↑</span></div>
+              <div class="progress-ticks" style="font-size:.65rem"><span style="color:var(--amber)">↑ Warn: 60°C</span><span style="color:var(--red)">Crit: 70°C ↑</span></div>
             </div>
             <div class="sub-metric">
               <div class="sub-metric-row"><span>Thermal Headroom</span><strong id="tmp-headroom" style="color:var(--green)">—</strong></div>
               <div class="sub-metric-bar"><div class="sub-metric-fill" id="tmp-headroom-bar" style="width:100%;background:var(--green)"></div></div>
-              <div class="sub-metric-note">Remaining margin to critical (40-60°C)</div>
+              <div class="sub-metric-note">Remaining margin to critical (70°C)</div>
             </div>
           </div>
           <div class="card">
             <div class="card-title">Threshold Limits</div>
             <div style="margin-bottom:10px">
-              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">15°C – 30°C</span></div>
-              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">30°C – 40°C</span></div>
-              <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 40°C – 70°C</span></div>
+              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">&lt; 60°C</span></div>
+              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">60 – 70°C</span></div>
+              <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 70°C</span></div>
             </div>
-            <div class="threshold-note"><p>Motor Thermal Protection</p><span>Warning at 30°C · Critical at 40-60°C</span></div>
+            <div class="threshold-note"><p>Motor Thermal Protection</p><span>Warning at 60°C · Critical at 70°C</span></div>
           </div>
           <div class="card">
             <div class="card-title">Thermal Status</div>
             <div class="no-fault-box" id="tmp-status-box">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              <p id="tmp-status-title">No Temperature Fault</p>
-              <span id="tmp-status-text">Temperature within normal range</span>
+              <p id="tmp-status-title">No Temperature Fault</p><span id="tmp-status-text">Temperature within normal range</span>
             </div>
           </div>
         </div>
@@ -774,16 +531,19 @@ header {
           <div class="card-subtitle">Raw readings with 5-point rolling average</div>
           <div class="chart-wrap" style="height:300px"><canvas id="tmp-trend-chart"></canvas></div>
         </div>
-        
+        <div class="grid-2">
+          <div class="card"><div class="card-title">Temperature Distribution</div><div class="card-subtitle">Frequency of readings per thermal band</div><div class="chart-wrap" style="height:240px"><canvas id="tmp-dist-chart"></canvas></div></div>
+          <div class="card"><div class="card-title">Thermal Rate of Rise (Δ°C)</div><div class="card-subtitle">Temperature change per interval</div><div class="chart-wrap" style="height:240px"><canvas id="tmp-roc-chart"></canvas></div></div>
+        </div>
       </div>
 
-    </div><!-- /page-inner -->
-  </div><!-- /content -->
-</div><!-- /main -->
+    </div>
+  </div>
+</div>
 
 <script>
 // ══════════════════════════════════════════════════════════════════════════════
-//  FIREBASE CONFIG  (same project as your Python script)
+//  FIREBASE CONFIG
 // ══════════════════════════════════════════════════════════════════════════════
 const firebaseConfig = {
   apiKey:            "AIzaSyCTD1Yvvj1KbZ0pDZTGxVZ3HQJvlm8oRh8",
@@ -794,25 +554,59 @@ const firebaseConfig = {
   appId:             "1:803476577973:web:fe0371c21c647a47fd28fc",
 };
 
-// ── Thresholds ────────────────────────────────────────────────────────────────
-// Vibration is binary: 0 = no fault, 1 = fault (from ML model)
-// Current: warning >8A, critical >10A
-// Temperature: warning >60°C, critical >70°C
+// ══════════════════════════════════════════════════════════════════════════════
+//  STATE_MAP — must match healthtrain.py exactly
+// ══════════════════════════════════════════════════════════════════════════════
+const STATE_MAP = {
+  'stable'              : 0,
+  'over temp'           : 1,
+  'vibrational problem' : 2,
+  'vib-temp'            : 3,
+  'current_fault_only'  : 4,
+  'curr-temp'           : 5,
+  'curr-vibration'      : 6,
+  'all'                 : 7,
+};
+
+// Maps each fault label → severity class for UI styling
+const FAULT_SEVERITY = {
+  'stable'              : 'stable',
+  'over temp'           : 'warning',
+  'vibrational problem' : 'warning',
+  'vib-temp'            : 'critical',
+  'current_fault_only'  : 'warning',
+  'curr-temp'           : 'critical',
+  'curr-vibration'      : 'critical',
+  'all'                 : 'critical',
+};
+
+// Human-readable descriptions for each fault label
+const FAULT_INFO = {
+  'stable'              : { msg: 'Motor operating normally. All parameters within safe range.', rec: 'No action required.', type: 'ok' },
+  'over temp'           : { msg: 'Temperature exceeds safe limit.', rec: 'Check cooling fans and ventilation.', type: 'warning' },
+  'vibrational problem' : { msg: 'Abnormal vibration detected.', rec: 'Inspect bearings and mechanical mounts.', type: 'warning' },
+  'vib-temp'            : { msg: 'Combined vibration and temperature fault.', rec: 'Shutdown and inspect bearings and cooling immediately.', type: 'critical' },
+  'current_fault_only'  : { msg: 'Abnormal current draw detected.', rec: 'Verify electrical supply and check motor windings.', type: 'warning' },
+  'curr-temp'           : { msg: 'Current overload with overheating.', rec: 'Reduce load and verify cooling system immediately.', type: 'critical' },
+  'curr-vibration'      : { msg: 'Current fault and vibration fault active simultaneously.', rec: 'Check for mechanical/electrical coupling issues.', type: 'critical' },
+  'all'                 : { msg: 'All fault types active — motor in critical state.', rec: 'Immediate shutdown and full inspection required.', type: 'critical' },
+};
+
+// ── Thresholds (sensor-level, for reading cards) ──────────────────────────────
 const TH = {
-  vibration:   { warning: 0.5,  critical: 1.0,  unit: '' },   // binary 0/1
+  vibration:   { warning: 0.5,  critical: 1.0,  unit: '' },
   current:     { warning: 8.0,  critical: 10.0, unit: 'A' },
   temperature: { warning: 60,   critical: 70,   unit: '°C' },
 };
 
 // ── App state ─────────────────────────────────────────────────────────────────
-let history  = [];
-let current  = null;   // null until first Firestore doc arrives
-let faults   = [];
+let history = [];
+let current = null;
 const MAX_HISTORY = 60;
 
-// ── Status helpers ────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function getStatus(param, val) {
-  if (param === 'vibration') return val === 1 ? 'critical' : 'normal'; // binary
+  if (param === 'vibration') return val === 1 ? 'critical' : 'normal';
   const t = TH[param];
   if (val > t.critical) return 'critical';
   if (val > t.warning)  return 'warning';
@@ -821,47 +615,52 @@ function getStatus(param, val) {
 function statusColor(s) {
   return s === 'critical' ? 'var(--red)' : s === 'warning' ? 'var(--amber)' : 'var(--green)';
 }
-
-function detectFaults(d) {
-  const STATE_FAULTS = {
-  0: [], // stable — no faults
-  1: [{ type:'warning',  param:'Temperature',           msg:'Motor overheating detected',                        val: null, rec:'Check cooling fans and clean air vents' }],
-  2: [{ type:'critical', param:'Vibration',             msg:'Vibrational problem — bearing or mechanical fault', val: null, rec:'Shut down motor and inspect bearings immediately' }],
-  3: [{ type:'critical', param:'Vibration + Temp',      msg:'Vibration fault compounded by thermal stress',      val: null, rec:'Immediate shutdown and full inspection required' }],
-  4: [{ type:'warning',  param:'Current',               msg:'Current fault — check load conditions',             val: null, rec:'Verify load and check for blockage' }],
-  5: [{ type:'critical', param:'Current + Temperature', msg:'Overload with overheating',                         val: null, rec:'Reduce load immediately, verify cooling system' }],
-  6: [{ type:'critical', param:'Current + Vibration',   msg:'Overload with mechanical vibration fault',          val: null, rec:'Reduce load and inspect motor bearings' }],
-  7: [{ type:'critical', param:'All Systems',           msg:'Combined fault — all parameters critical',          val: null, rec:'Emergency shutdown. Full system inspection required' }],
-};
-
-function detectFaults(d) {
-  const predClass = d.predClass !== null ? d.predClass : null;
-  if (predClass === null) return [];
-
-  const baseFaults = (STATE_FAULTS[predClass] || []).map(f => ({
-    ...f,
-    val: predClass === 1 ? `${d.temperature.toFixed(1)}°C`
-       : predClass === 2 ? (d.vibration === 1 ? 'FAULT' : `${d.vibration.toFixed(2)}`)
-       : predClass === 3 ? `V:${d.vibration===1?'FAULT':d.vibration.toFixed(2)} T:${d.temperature.toFixed(1)}°C`
-       : predClass === 4 ? `${d.current.toFixed(1)}A`
-       : predClass === 5 ? `I:${d.current.toFixed(1)}A T:${d.temperature.toFixed(1)}°C`
-       : predClass === 6 ? `I:${d.current.toFixed(1)}A V:${d.vibration===1?'FAULT':d.vibration.toFixed(2)}`
-       : predClass === 7 ? `I:${d.current.toFixed(1)}A V:${d.vibration===1?'FAULT':d.vibration.toFixed(2)} T:${d.temperature.toFixed(1)}°C`
-       : '—'
-  }));
-
-  return baseFaults;
-}
-}
-
 function calcRolling(vals, w=5) {
-  return vals.map((v,i,a) => {
-    const s = a.slice(Math.max(0,i-w+1), i+1);
-    return +(s.reduce((x,y)=>x+y,0)/s.length).toFixed(2);
-  });
+  return vals.map((v,i,a) => { const s=a.slice(Math.max(0,i-w+1),i+1); return +(s.reduce((x,y)=>x+y,0)/s.length).toFixed(2); });
 }
-function calcROC(vals) {
-  return vals.map((v,i,a) => i>0 ? +(v-a[i-1]).toFixed(3) : 0);
+function calcROC(vals) { return vals.map((v,i,a)=>i>0?+(v-a[i-1]).toFixed(3):0); }
+function dynamicRange(vals, minFloor, maxCeil, pad=0.1) {
+  if (!vals||!vals.length) return {min:minFloor,max:maxCeil};
+  const lo=Math.min(...vals),hi=Math.max(...vals);
+  const p=Math.max((hi-lo)*pad,(maxCeil-minFloor)*0.05);
+  return {min:Math.max(minFloor,+(lo-p).toFixed(2)),max:Math.min(maxCeil,+(hi+p).toFixed(2))};
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  CORE: Resolve ML fault label + status code from Firestore data
+//
+//  Rules:
+//  1. If current === 0 AND vibration === 0  → force status code 0 ('stable')
+//  2. Otherwise use the 'faultLabel' field from Firestore (written by Python)
+//  3. Fall back to numeric 'fault' code if label is absent
+// ══════════════════════════════════════════════════════════════════════════════
+function resolveFaultLabel(d) {
+  // Rule: both current and vibration are 0 → motor is off/idle → stable
+  if (d.current === 0 ) {
+    return { label: 'stable', code: 0 };
+  }
+
+  // Use string label from Firestore (preferred — written by Python predict)
+  if (d.faultLabel && STATE_MAP.hasOwnProperty(d.faultLabel)) {
+    return { label: d.faultLabel, code: STATE_MAP[d.faultLabel] };
+  }
+
+  // Fall back: numeric fault code → reverse lookup
+  if (d.fault !== null && d.fault !== undefined) {
+    const code = +d.fault;
+    const label = Object.keys(STATE_MAP).find(k => STATE_MAP[k] === code) || 'stable';
+    return { label, code };
+  }
+
+  return { label: 'stable', code: 0 };
+}
+
+// ── Build fault list from ML label (replaces old rule-based detectFaults) ─────
+function buildFaultsFromLabel(label) {
+  if (label === 'stable') return [];
+  const info = FAULT_INFO[label] || FAULT_INFO['stable'];
+  const type  = info.type === 'critical' ? 'critical' : 'warning';
+  return [{ type, param: label.replace(/-/g,' ').replace(/_/g,' '), msg: info.msg, val: label.toUpperCase(), rec: info.rec }];
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
@@ -870,253 +669,273 @@ const pageTitles = { dashboard:'Dashboard', vibration:'Vibration Analysis', curr
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     const p = btn.dataset.page;
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-    document.getElementById('page-' + p).classList.add('active');
+    document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+    document.getElementById('page-'+p).classList.add('active');
     document.getElementById('page-title').textContent = pageTitles[p];
     activePage = p;
     updateCharts();
   });
 });
-document.getElementById('sidebar-toggle').addEventListener('click', () =>
+document.getElementById('sidebar-toggle').addEventListener('click',()=>
   document.getElementById('sidebar').classList.toggle('collapsed'));
-
-function tickClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
-tickClock(); setInterval(tickClock, 1000);
+function tickClock(){ document.getElementById('clock').textContent=new Date().toLocaleTimeString(); }
+tickClock(); setInterval(tickClock,1000);
 
 // ── Chart.js defaults ─────────────────────────────────────────────────────────
-Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
-Chart.defaults.color = '#94a3b8';
-const TT = { backgroundColor:'#1e293b', borderColor:'#334155', borderWidth:1, titleColor:'#94a3b8', bodyColor:'#f1f5f9', padding:8, cornerRadius:8, displayColors:true, boxWidth:8, boxHeight:8 };
-const GRID = { color:'#f1f5f9' };
+Chart.defaults.font.family="'IBM Plex Sans',sans-serif"; Chart.defaults.color='#94a3b8';
+const TT={backgroundColor:'#1e293b',borderColor:'#334155',borderWidth:1,titleColor:'#94a3b8',bodyColor:'#f1f5f9',padding:8,cornerRadius:8,displayColors:true,boxWidth:8,boxHeight:8};
+const GRID={color:'#f1f5f9'};
 
-// ── Build charts ──────────────────────────────────────────────────────────────
-const radarChart = new Chart(document.getElementById('radar-chart'), {
-  type: 'radar',
-  data: { labels:['Vibration','Current','Temperature'], datasets:[
-    { label:'Stress %', data:[0,0,0], backgroundColor:'rgba(99,102,241,.18)', borderColor:'#6366f1', borderWidth:2, pointBackgroundColor:'#6366f1', pointRadius:3 },
-    { label:'Critical', data:[100,100,100], backgroundColor:'transparent', borderColor:'rgba(239,68,68,.25)', borderWidth:1, borderDash:[4,4], pointRadius:0 },
+const radarChart=new Chart(document.getElementById('radar-chart'),{
+  type:'radar',
+  data:{labels:['Vibration','Current','Temperature'],datasets:[
+    {label:'Stress %',data:[0,0,0],backgroundColor:'rgba(99,102,241,.18)',borderColor:'#6366f1',borderWidth:2,pointBackgroundColor:'#6366f1',pointRadius:3},
+    {label:'Critical',data:[100,100,100],backgroundColor:'transparent',borderColor:'rgba(239,68,68,.25)',borderWidth:1,borderDash:[4,4],pointRadius:0},
   ]},
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...TT, callbacks:{label:c=>` ${c.raw.toFixed(1)}%`}} }, scales:{ r:{ min:0, max:100, ticks:{stepSize:25,font:{size:9}}, grid:{color:'#e2e8f0'}, pointLabels:{font:{size:12}} } } }
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.raw.toFixed(1)}%`}}},scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'#e2e8f0'},pointLabels:{font:{size:12}}}}}
 });
 
-const trendChart = new Chart(document.getElementById('trend-chart'), {
+const trendChart=new Chart(document.getElementById('trend-chart'),{
   type:'line',
-  data:{ labels:[], datasets:[
-    { label:'Vibration %', data:[], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.08)', fill:true, tension:.4, borderWidth:2, pointRadius:0 },
-    { label:'Current %',   data:[], borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.08)', fill:true, tension:.4, borderWidth:2, pointRadius:0 },
-    { label:'Temperature %', data:[], borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,.08)', fill:true, tension:.4, borderWidth:2, pointRadius:0 },
+  data:{labels:[],datasets:[
+    {label:'Vibration %',data:[],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:0},
+    {label:'Current %',data:[],borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:0},
+    {label:'Temperature %',data:[],borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:0},
   ]},
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:20,font:{size:12}}}, tooltip:{...TT,callbacks:{label:c=>` ${c.dataset.label}: ${c.raw.toFixed(1)}%`}} }, scales:{ x:{grid:{display:false},ticks:{maxTicksLimit:10,font:{size:11}}}, y:{...GRID,min:0,max:115,ticks:{callback:v=>v+'%',font:{size:11}}} } }
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:20,font:{size:12}}},tooltip:{...TT,callbacks:{label:c=>` ${c.dataset.label}: ${c.raw.toFixed(1)}%`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:10,font:{size:11}}},y:{...GRID,min:0,max:115,ticks:{callback:v=>v+'%',font:{size:11}}}}}
 });
 
-function makeAreaChart(id, color, unit, ymin, ymax) {
-  return new Chart(document.getElementById(id), {
-    type:'line', data:{ labels:[], datasets:[
-      { label:unit, data:[], borderColor:color, backgroundColor:color+'22', fill:true, tension:.4, borderWidth:2, pointRadius:0 },
-      { label:'5pt Avg', data:[], borderColor:'#6366f1', fill:false, tension:.4, borderWidth:2, pointRadius:0 },
+function makeAreaChart(id,color,unit){
+  return new Chart(document.getElementById(id),{
+    type:'line',data:{labels:[],datasets:[
+      {label:unit,data:[],borderColor:color,backgroundColor:color+'22',fill:true,tension:.4,borderWidth:2,pointRadius:0},
+      {label:'5pt Avg',data:[],borderColor:'#6366f1',fill:false,tension:.4,borderWidth:2,pointRadius:0},
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,font:{size:11}}}, tooltip:{...TT} }, scales:{ x:{grid:{display:false},ticks:{maxTicksLimit:10,font:{size:11}}}, y:{grid:GRID,min:ymin,max:ymax,ticks:{font:{size:11}}} } }
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,font:{size:11}}},tooltip:{...TT}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:10,font:{size:11}}},y:{grid:GRID,ticks:{font:{size:11}}}}}
   });
 }
-function makeBarChart(id) {
-  return new Chart(document.getElementById(id), {
-    type:'bar', data:{ labels:[], datasets:[{ label:'Readings', data:[], backgroundColor:[], borderRadius:4 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...TT} }, scales:{ x:{grid:{display:false},ticks:{font:{size:10}}}, y:{grid:GRID,ticks:{font:{size:11},stepSize:1}} } }
+function makeBarChart(id){
+  return new Chart(document.getElementById(id),{
+    type:'bar',data:{labels:[],datasets:[{label:'Readings',data:[],backgroundColor:[],borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:GRID,ticks:{font:{size:11},stepSize:1}}}}
   });
 }
-function makeROCChart(id, color) {
-  return new Chart(document.getElementById(id), {
-    type:'line', data:{ labels:[], datasets:[{ label:'Rate of Change', data:[], borderColor:color, backgroundColor:color+'18', fill:true, tension:.4, borderWidth:1.5, pointRadius:0 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...TT} }, scales:{ x:{grid:{display:false},ticks:{maxTicksLimit:10,font:{size:10}}}, y:{grid:GRID,ticks:{font:{size:11}}} } }
+function makeROCChart(id,color){
+  return new Chart(document.getElementById(id),{
+    type:'line',data:{labels:[],datasets:[{label:'Rate of Change',data:[],borderColor:color,backgroundColor:color+'18',fill:true,tension:.4,borderWidth:1.5,pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:10,font:{size:10}}},y:{grid:GRID,ticks:{font:{size:11}}}}}
+  });
+}
+function makeVibBinaryChart(id){
+  return new Chart(document.getElementById(id),{
+    type:'line',data:{labels:[],datasets:[
+      {label:'Fault Signal',data:[],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.15)',fill:true,stepped:'before',borderWidth:2,pointRadius:3,pointBackgroundColor:'#3b82f6'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,font:{size:11}}},tooltip:{...TT,callbacks:{label:c=>` Signal: ${c.raw===1?'FAULT':'OK'}`}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:10,font:{size:11}}},y:{grid:GRID,min:-0.1,max:1.5,ticks:{stepSize:1,font:{size:11},callback:v=>v===0?'0 (OK)':v===1?'1 (FAULT)':''}}}}
   });
 }
 
-const vibTrend = makeAreaChart('vib-trend-chart','#3b82f6','mm/s',0,5);
-const vibDist  = makeBarChart('vib-dist-chart');
-const vibROC   = makeROCChart('vib-roc-chart','#6366f1');
-const curTrend = makeAreaChart('cur-trend-chart','#10b981','A',10,20);
-const curDist  = makeBarChart('cur-dist-chart');
-const curROC   = makeROCChart('cur-roc-chart','#6366f1');
-const tmpTrend = makeAreaChart('tmp-trend-chart','#f59e0b','°C',55,85);
-const tmpDist  = makeBarChart('tmp-dist-chart');
-const tmpROC   = makeROCChart('tmp-roc-chart','#f97316');
+const vibTrend=makeVibBinaryChart('vib-trend-chart');
+const vibDist=makeBarChart('vib-dist-chart');
+const vibROC=makeROCChart('vib-roc-chart','#6366f1');
+const curTrend=makeAreaChart('cur-trend-chart','#10b981','A');
+const curDist=makeBarChart('cur-dist-chart');
+const curROC=makeROCChart('cur-roc-chart','#6366f1');
+const tmpTrend=makeAreaChart('tmp-trend-chart','#f59e0b','°C');
+const tmpDist=makeBarChart('tmp-dist-chart');
+const tmpROC=makeROCChart('tmp-roc-chart','#f97316');
 
-// ── UI update ─────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+//  UI UPDATE — driven by ML fault label from healthtrain STATE_MAP
+// ══════════════════════════════════════════════════════════════════════════════
 function updateUI() {
-  
   if (!current) return;
   const d = current;
-  if (isStale) {
-  document.getElementById('sb-fault-status').textContent = '⚠ NO SIGNAL';
-  document.getElementById('sb-fault-status').style.color = '#fca5a5';
 
-  document.getElementById('sb-health').textContent = '—';
-  document.getElementById('health-header-text').textContent = 'Sensor Offline';
-
-  return; // stop normal UI updates
-}
   const now = Date.now();
-  const last = current.timestamp ? new Date(current.timestamp).getTime() : 0;
+  const last = d.timestamp ? new Date(d.timestamp).getTime() : 0;
+  const isStale = now - last > 5000;
 
-  const isStale = now - last > 5000; // 5 seconds threshold 
-  faults = detectFaults(d);
+  if (isStale) {
+    document.getElementById('sb-fault-status').textContent = '⚠ NO SIGNAL';
+    document.getElementById('sb-fault-status').style.color = '#fca5a5';
+    document.getElementById('sb-health').textContent = '—';
+    document.getElementById('health-header-text').textContent = 'Sensor Offline';
+    return;
+  }
 
-  // Use ML score from Firestore (set by Keras model in Python)
-  const mlScore  = d.score  !== undefined ? Math.round(d.score)  : null;
-  const mlFault  = d.fault  !== undefined ? d.fault : null;
+  // ── Resolve ML fault label (healthtrain STATE_MAP) ────────────────────────
+  const { label: faultLabel, code: statusCode } = resolveFaultLabel(d);
+  const faults = buildFaultsFromLabel(faultLabel);
+  const severity = FAULT_SEVERITY[faultLabel] || 'stable';
+  const info = FAULT_INFO[faultLabel] || FAULT_INFO['stable'];
+
+  const mlScore = d.score !== undefined ? Math.round(d.score) : null;
   const hc = mlScore !== null ? (mlScore >= 80 ? '#10b981' : mlScore >= 60 ? '#f59e0b' : '#ef4444') : '#94a3b8';
 
-  // ── Sidebar ──────────────────────────────────────────────────────────────
   const crits = faults.filter(f=>f.type==='critical').length;
   const warns  = faults.filter(f=>f.type==='warning').length;
-  document.getElementById('sb-health').textContent = mlScore !== null ? mlScore + '/100' : '—';
-  document.getElementById('sb-health').style.color = hc;
-  document.getElementById('sb-ml-score').textContent = mlScore !== null ? mlScore.toFixed(1) : '—';
-  document.getElementById('sb-ml-score').style.color = hc;
-  document.getElementById('sb-fault-status').textContent = mlFault !== null ? (mlFault === 1 ? '⚠ FAULT' : '✓ OK') : '—';
-  document.getElementById('sb-fault-status').style.color = mlFault === 1 ? '#fca5a5' : '#94a3b8';
-  document.getElementById('ml-vib-val').textContent = d.vibration.toFixed(2) + ' mm/s';
-  document.getElementById('ml-cur-val').textContent = d.current.toFixed(1) + ' A';
-  document.getElementById('ml-tmp-val').textContent = d.temperature.toFixed(1) + ' °C';
 
-  const sV = getStatus('vibration',d.vibration), sC = getStatus('current',d.current), sT = getStatus('temperature',d.temperature);
-  ['ml-vib','ml-cur','ml-tmp'].forEach((id,i) => {
-    document.getElementById(id).style.background = statusColor([sV,sC,sT][i]);
-  });
+  // ── Sidebar ───────────────────────────────────────────────────────────────
+  document.getElementById('sb-health').textContent = mlScore !== null ? mlScore+'/100' : '—';
+  document.getElementById('sb-health').style.color = hc;
+  document.getElementById('sb-fault-label').textContent = faultLabel;
+  document.getElementById('sb-fault-label').style.color = severity==='stable'?'#34d399':severity==='critical'?'#fca5a5':'#fcd34d';
+  document.getElementById('sb-fault-status').textContent = 'Code: ' + statusCode;
+  document.getElementById('sb-fault-status').style.color = statusCode === 0 ? '#34d399' : '#fca5a5';
+  document.getElementById('ml-vib-val').textContent = d.vibration===1?'FAULT':'OK';
+  document.getElementById('ml-cur-val').textContent = d.current.toFixed(2)+' A';
+  document.getElementById('ml-tmp-val').textContent = d.temperature.toFixed(1)+' °C';
+
+  const sV=getStatus('vibration',d.vibration), sC=getStatus('current',d.current), sT=getStatus('temperature',d.temperature);
+  ['ml-vib','ml-cur','ml-tmp'].forEach((id,i)=>{ document.getElementById(id).style.background=statusColor([sV,sC,sT][i]); });
   setNavDot('nav-dot-vib',sV); setNavDot('nav-dot-cur',sC); setNavDot('nav-dot-tmp',sT);
 
-  // ── Header ───────────────────────────────────────────────────────────────
-  const hbadge = document.getElementById('health-header-badge');
-  hbadge.className = 'header-badge ' + (mlScore===null?'badge-slate':mlScore>=80?'badge-green':mlScore>=60?'badge-amber':'badge-red');
-  document.getElementById('health-header-text').textContent = mlScore !== null ? mlScore + '% Health' : 'Waiting…';
-  const bb = document.getElementById('bell-badge');
-  if (faults.length > 0) { bb.classList.remove('hidden'); bb.textContent = faults.length; }
-  else bb.classList.add('hidden');
+  // ── Header badge ──────────────────────────────────────────────────────────
+  const hbadge=document.getElementById('health-header-badge');
+  hbadge.className='header-badge '+(mlScore===null?'badge-slate':mlScore>=80?'badge-green':mlScore>=60?'badge-amber':'badge-red');
+  document.getElementById('health-header-text').textContent = mlScore!==null?mlScore+'% Health':'Waiting…';
 
-  // ── KPIs ─────────────────────────────────────────────────────────────────
-  document.getElementById('kpi-faults').textContent = faults.length;
-  document.getElementById('kpi-faults-sub').textContent = faults.length===0?'All clear':`${crits} critical, ${warns} warning`;
-  document.getElementById('kpi-health').textContent = mlScore !== null ? mlScore : '—';
-  document.getElementById('kpi-lastupdate').textContent = d.timestamp
-    ? new Date(d.timestamp).toLocaleTimeString() : '—';
+  const bb=document.getElementById('bell-badge');
+  if (faults.length>0){bb.classList.remove('hidden');bb.textContent=faults.length;}else bb.classList.add('hidden');
+
+  // ── KPIs ──────────────────────────────────────────────────────────────────
+  document.getElementById('kpi-faults').textContent=faults.length;
+  document.getElementById('kpi-faults-sub').textContent=faults.length===0?'All clear':`${crits} critical, ${warns} warning`;
+  document.getElementById('kpi-health').textContent=mlScore!==null?mlScore:'—';
+  document.getElementById('kpi-lastupdate').textContent=d.timestamp?new Date(d.timestamp).toLocaleTimeString():'—';
 
   // ── Gauge ─────────────────────────────────────────────────────────────────
-  if (mlScore !== null) {
-    const filled = (mlScore/100)*339.3;
-    document.getElementById('gauge-fill').setAttribute('stroke-dasharray', filled + ' ' + (452.4-filled));
-    document.getElementById('gauge-fill').setAttribute('stroke', hc);
-    document.getElementById('gauge-score').textContent = mlScore;
-    const gb = document.getElementById('gauge-badge');
-    gb.textContent = mlScore>=80?'HEALTHY':mlScore>=60?'WARNING':'CRITICAL';
-    gb.style.background = hc;
+  if (mlScore!==null){
+    const filled=(mlScore/100)*339.3;
+    document.getElementById('gauge-fill').setAttribute('stroke-dasharray',filled+' '+(452.4-filled));
+    document.getElementById('gauge-fill').setAttribute('stroke',hc);
+    document.getElementById('gauge-score').textContent=mlScore;
+    const gb=document.getElementById('gauge-badge');
+    gb.textContent=mlScore>=80?'HEALTHY':mlScore>=60?'WARNING':'CRITICAL';
+    gb.style.background=hc;
   }
 
   // ── Radar ─────────────────────────────────────────────────────────────────
-  radarChart.data.datasets[0].data = [
+  radarChart.data.datasets[0].data=[
     Math.min(100,(d.vibration/TH.vibration.critical)*100),
     Math.min(100,(d.current/TH.current.critical)*100),
     Math.min(100,(d.temperature/TH.temperature.critical)*100),
   ];
   radarChart.update('none');
 
-  // ── Fault boxes ───────────────────────────────────────────────────────────
-  document.getElementById('fc-crit-num').textContent = crits;
-  document.getElementById('fc-warn-num').textContent = warns;
-  document.getElementById('fc-crit-box').className = 'fault-count-box ' + (crits>0?'fc-crit':'fc-empty');
-  document.getElementById('fc-warn-box').className = 'fault-count-box ' + (warns>0?'fc-warn':'fc-empty');
-  renderFaultList('fault-list-wrap', faults, true);
-  renderFaultList('fault-detail-wrap', faults, false);
-  renderMatrix(d);
+  // ── ML Fault Label Badge (Fault Summary card) ─────────────────────────────
+  const badgeEl = document.getElementById('ml-fault-badge-main');
+  badgeEl.className = 'ml-fault-badge ' + severity;
+  badgeEl.textContent = `[${statusCode}] ${faultLabel.toUpperCase()}`;
 
-  // ── Reading cards ─────────────────────────────────────────────────────────
-  updateReadingCard('vib', d.vibration, 'vibration', 'mm/s', TH.vibration.critical, 2);
-  updateReadingCard('cur', d.current,   'current',   'A',    TH.current.critical,   1);
-  updateReadingCard('tmp', d.temperature,'temperature','°C',  TH.temperature.critical,1);
+  // ── Fault counts ──────────────────────────────────────────────────────────
+  document.getElementById('fc-crit-num').textContent=crits;
+  document.getElementById('fc-warn-num').textContent=warns;
+  document.getElementById('fc-crit-box').className='fault-count-box '+(crits>0?'fc-crit':'fc-empty');
+  document.getElementById('fc-warn-box').className='fault-count-box '+(warns>0?'fc-warn':'fc-empty');
+  renderFaultList('fault-list-wrap',faults,true);
 
-  // Current load (% of critical 10A)
-  const loadPct = Math.min(100,(d.current/10.0)*100);
-  const lc = statusColor(sC);
-  document.getElementById('cur-load').textContent = loadPct.toFixed(0)+'%';
-  document.getElementById('cur-load').style.color = lc;
-  document.getElementById('cur-load-bar').style.width = loadPct+'%';
-  document.getElementById('cur-load-bar').style.background = lc;
+  // ── Fault Detail: show ML label prominently ───────────────────────────────
+  const detailLabelEl = document.getElementById('ml-fault-detail-label');
+  detailLabelEl.innerHTML = `
+    <div style="padding:10px 14px;border-radius:8px;border:1px solid;${
+      severity==='stable'    ? 'background:var(--green-bg);border-color:var(--green-border)' :
+      severity==='critical'  ? 'background:var(--red-bg);border-color:var(--red-border)' :
+                               'background:var(--amber-bg);border-color:var(--amber-border)'
+    }">
+      <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">
+        healthtrain ML Diagnosis · Status Code ${statusCode}
+      </div>
+      <div style="font-weight:700;font-size:0.95rem;color:${
+        severity==='stable'?'var(--green-text)':severity==='critical'?'var(--red-text)':'var(--amber-text)'
+      }">${faultLabel.toUpperCase()}</div>
+      <div style="font-size:0.75rem;margin-top:4px;color:var(--text-secondary)">${info.msg}</div>
+      ${severity!=='stable'?`<div style="font-size:0.72rem;margin-top:6px;color:var(--text-muted)">→ ${info.rec}</div>`:''}
+    </div>`;
+  renderFaultList('fault-detail-wrap',faults,false);
 
-  // No-current-fault status box
-  const curNoFault = document.getElementById('cur-no-fault-box');
-  const curNoFaultText = document.getElementById('cur-no-fault-text');
-  if (sC === 'normal') {
-    curNoFault.querySelector('svg').style.color = 'var(--green)';
-    curNoFault.querySelector('p').style.color = '#065f46';
-    curNoFaultText.textContent = `Current nominal at ${d.current.toFixed(1)} A`;
-  } else if (sC === 'warning') {
-    curNoFault.querySelector('svg').style.color = 'var(--amber)';
-    curNoFault.querySelector('p').textContent = 'Current Warning';
-    curNoFault.querySelector('p').style.color = '#78350f';
-    curNoFaultText.textContent = `${d.current.toFixed(1)} A — above warning threshold`;
-  } else {
-    curNoFault.querySelector('svg').style.color = 'var(--red)';
-    curNoFault.querySelector('p').textContent = 'Current Fault';
-    curNoFault.querySelector('p').style.color = '#7f1d1d';
-    curNoFaultText.textContent = `${d.current.toFixed(1)} A — critical overload`;
-  }
+  renderMatrix(d, faultLabel);
 
-  // Thermal headroom
-  const hroom = Math.max(0, 75-d.temperature);
-  const hrPct = Math.min(100,(hroom/75)*100);
-  const hrCol = hroom<5?'var(--red)':hroom<10?'var(--amber)':'var(--green)';
-  document.getElementById('tmp-headroom').textContent = hroom.toFixed(1)+'°C';
-  document.getElementById('tmp-headroom').style.color = hrCol;
-  document.getElementById('tmp-headroom-bar').style.width = hrPct+'%';
-  document.getElementById('tmp-headroom-bar').style.background = hrCol;
+  // ── Vibration reading card ────────────────────────────────────────────────
+  document.getElementById('vib-reading-card').className='reading-card st-'+sV;
+  document.getElementById('vib-big').textContent=d.vibration===1?'FAULT':'OK';
+  document.getElementById('vib-big').style.color=statusColor(sV);
+  document.getElementById('vib-badge').textContent=sV.toUpperCase();
 
-  // Stats
-  if (history.length) {
-    renderStats('vib-stats', history.map(h=>h.vibration), 'mm/s', 2, TH.vibration);
-    renderStats('cur-stats', history.map(h=>h.current),   'A',    1, TH.current);
-    renderStats('tmp-stats', history.map(h=>h.temperature),'°C',  1, TH.temperature);
-  }
+  updateReadingCard('cur',d.current,'current','A',TH.current.critical,2);
+  updateReadingCard('tmp',d.temperature,'temperature','°C',TH.temperature.critical,1);
+
+  const loadPct=Math.min(100,(d.current/TH.current.critical)*100), lc=statusColor(sC);
+  document.getElementById('cur-load').textContent=loadPct.toFixed(0)+'%';
+  document.getElementById('cur-load').style.color=lc;
+  document.getElementById('cur-load-bar').style.width=loadPct+'%';
+  document.getElementById('cur-load-bar').style.background=lc;
+
+  // Current status box
+  const curBox=document.getElementById('cur-no-fault-box');
+  curBox.querySelector('svg').style.color=statusColor(sC);
+  curBox.querySelector('p').textContent=sC==='normal'?'No Current Fault':sC==='warning'?'Current Warning':'Current Fault';
+  curBox.querySelector('p').style.color=sC==='normal'?'#065f46':sC==='warning'?'#78350f':'#7f1d1d';
+  document.getElementById('cur-no-fault-text').textContent=
+    sC==='normal'?`Current nominal at ${d.current.toFixed(2)} A`:
+    sC==='warning'?`${d.current.toFixed(2)} A — above warning threshold`:
+    `${d.current.toFixed(2)} A — critical overload`;
+
+  // Temperature headroom
+  const hroom=Math.max(0,TH.temperature.critical-d.temperature);
+  const hrPct=Math.min(100,(hroom/TH.temperature.critical)*100);
+  const hrCol=hroom<5?'var(--red)':hroom<10?'var(--amber)':'var(--green)';
+  document.getElementById('tmp-headroom').textContent=hroom.toFixed(1)+'°C';
+  document.getElementById('tmp-headroom').style.color=hrCol;
+  document.getElementById('tmp-headroom-bar').style.width=hrPct+'%';
+  document.getElementById('tmp-headroom-bar').style.background=hrCol;
+
+  const tmpBox=document.getElementById('tmp-status-box');
+  tmpBox.querySelector('svg').style.color=statusColor(sT);
+  document.getElementById('tmp-status-title').textContent=sT==='normal'?'No Temperature Fault':sT==='warning'?'Temperature Warning':'Temperature Critical';
+  document.getElementById('tmp-status-title').style.color=sT==='normal'?'#065f46':sT==='warning'?'#78350f':'#7f1d1d';
+  document.getElementById('tmp-status-text').textContent=
+    sT==='normal'?`Temperature nominal at ${d.temperature.toFixed(1)}°C`:
+    sT==='warning'?`${d.temperature.toFixed(1)}°C — above warning threshold`:
+    `${d.temperature.toFixed(1)}°C — critical overheating!`;
 
   updateCharts();
 }
 
-function setNavDot(id, s) {
-  document.getElementById(id).className = 'nav-dot ' + (s==='critical'?'crit':s==='warning'?'warn':'ok');
-}
+function setNavDot(id,s){ document.getElementById(id).className='nav-dot '+(s==='critical'?'crit':s==='warning'?'warn':'ok'); }
 
-function updateReadingCard(prefix, val, param, unit, critVal, dec) {
-  const s = getStatus(param, val);
-  const col = statusColor(s);
-  document.getElementById(prefix+'-reading-card').className = 'reading-card st-'+s;
-  document.getElementById(prefix+'-big').textContent = val.toFixed(dec);
-  document.getElementById(prefix+'-big').style.color = col;
-  document.getElementById(prefix+'-badge').textContent = s.toUpperCase();
-  const pct = Math.min(100,(val/critVal)*100);
-  document.getElementById(prefix+'-pct').textContent = pct.toFixed(0)+'% of critical';
-  document.getElementById(prefix+'-bar').style.width = pct+'%';
-  document.getElementById(prefix+'-bar').style.background = col;
-  const vals5 = history.slice(-5).map(h=>h[param]);
-  if (vals5.length >= 2) {
-    const delta = vals5[vals5.length-1] - vals5[0];
-    const abs = Math.abs(delta).toFixed(dec);
-    const el = document.getElementById(prefix+'-trend');
-    const tol = param==='vibration'?0.05:param==='current'?0.1:0.2;
-    if (Math.abs(delta)<tol) { el.textContent='— Stable'; el.className='trend-label trend-stable'; }
-    else if (delta>0)         { el.textContent=`↑ +${abs} ${unit}`; el.className='trend-label trend-up'; }
-    else                      { el.textContent=`↓ ${abs} ${unit}`;  el.className='trend-label trend-down'; }
+function updateReadingCard(prefix,val,param,unit,critVal,dec){
+  const s=getStatus(param,val), col=statusColor(s);
+  document.getElementById(prefix+'-reading-card').className='reading-card st-'+s;
+  document.getElementById(prefix+'-big').textContent=val.toFixed(dec);
+  document.getElementById(prefix+'-big').style.color=col;
+  document.getElementById(prefix+'-badge').textContent=s.toUpperCase();
+  const pct=Math.min(100,(val/critVal)*100);
+  document.getElementById(prefix+'-pct').textContent=pct.toFixed(0)+'% of critical';
+  document.getElementById(prefix+'-bar').style.width=pct+'%';
+  document.getElementById(prefix+'-bar').style.background=col;
+  const vals5=history.slice(-5).map(h=>h[param]);
+  if (vals5.length>=2){
+    const delta=vals5[vals5.length-1]-vals5[0], abs=Math.abs(delta).toFixed(dec), el=document.getElementById(prefix+'-trend');
+    const tol=param==='current'?0.05:0.2;
+    if (Math.abs(delta)<tol){el.textContent='— Stable';el.className='trend-label trend-stable';}
+    else if (delta>0){el.textContent=`↑ +${abs} ${unit}`;el.className='trend-label trend-up';}
+    else{el.textContent=`↓ ${abs} ${unit}`;el.className='trend-label trend-down';}
   }
 }
 
-function renderFaultList(containerId, faults, compact) {
-  const wrap = document.getElementById(containerId);
-  if (!faults.length) {
-    wrap.innerHTML = `<div class="no-fault-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p>${compact?'All Systems Normal':'No Faults Detected'}</p><span>All parameters within safe range</span></div>`;
+function renderFaultList(containerId, faults, compact){
+  const wrap=document.getElementById(containerId);
+  if (!faults.length){
+    wrap.innerHTML=`<div class="no-fault-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p>${compact?'All Systems Normal':'No Faults Detected'}</p><span>All parameters within safe range</span></div>`;
     return;
   }
-  const ci = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
-  const wi = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
-  const items = faults.slice(0,compact?4:10).map(f =>
+  const ci=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+  const wi=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  const items=faults.slice(0,compact?4:10).map(f=>
     `<div class="fault-item ${f.type==='critical'?'fc':'fw'}">${f.type==='critical'?ci:wi}
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -1128,26 +947,28 @@ function renderFaultList(containerId, faults, compact) {
         ${compact?'':'<div class="fault-rec">→ '+f.rec+'</div>'}
       </div></div>`
   ).join('');
-  wrap.innerHTML = `<div class="fault-list">${items}</div>`;
+  wrap.innerHTML=`<div class="fault-list">${items}</div>`;
 }
 
-function renderMatrix(d) {
+function renderMatrix(d, faultLabel){
   const params=['vibration','current','temperature'], labels=['Vibration','Current','Temperature'];
-  function combined(a,b) {
-    if ((a==='vibration'&&b==='temperature')||(a==='temperature'&&b==='vibration')) if(d.vibration>3.0&&d.temperature>70) return 'critical';
-    if ((a==='current'&&b==='temperature')||(a==='temperature'&&b==='current')) if(d.current>16.5&&d.temperature>72) return 'critical';
-    if ((a==='vibration'&&b==='current')||(a==='current'&&b==='vibration')) if(d.vibration>3.2&&d.current>17) return 'critical';
+  // Cross-param status informed by ML label
+  function crossStatus(a, b){
+    const lbl = faultLabel;
+    if ((a==='vibration'&&b==='temperature')||(a==='temperature'&&b==='vibration')) return (lbl==='vib-temp'||lbl==='all')?'critical':'normal';
+    if ((a==='current'&&b==='temperature')||(a==='temperature'&&b==='current'))    return (lbl==='curr-temp'||lbl==='all')?'critical':'normal';
+    if ((a==='vibration'&&b==='current')||(a==='current'&&b==='vibration'))        return (lbl==='curr-vibration'||lbl==='all')?'critical':'normal';
     return 'normal';
   }
-  document.getElementById('matrix-body').innerHTML = params.map((row,ri) =>
-    `<tr><td style="color:var(--text-secondary);font-size:.8rem;font-weight:500;padding:6px 0">${labels[ri]}</td>` +
-    params.map(col => {
-      const s = row===col?getStatus(row,d[row]):combined(row,col);
+  document.getElementById('matrix-body').innerHTML=params.map((row,ri)=>
+    `<tr><td style="color:var(--text-secondary);font-size:.8rem;font-weight:500;padding:6px 0">${labels[ri]}</td>`+
+    params.map(col=>{
+      const s=row===col?getStatus(row,d[row]):crossStatus(row,col);
       const dc=s==='critical'?'crit':s==='warning'?'warn':'ok';
       return `<td style="text-align:center"><div class="matrix-cell"><div class="matrix-dot ${dc}"></div><div class="matrix-lbl ${dc}">${s.toUpperCase()}</div></div></td>`;
     }).join('')+'</tr>'
   ).join('');
-  const allS = (d.vibration>3.0&&d.current>16.5&&d.temperature>70)?'critical':'normal';
+  const allS = faultLabel==='all'?'critical':'normal';
   const allDC = allS==='critical'?'crit':'ok';
   document.getElementById('matrix-combined-dot').className='matrix-dot '+allDC;
   document.getElementById('matrix-combined-lbl').className='matrix-lbl '+allDC;
@@ -1157,121 +978,106 @@ function renderMatrix(d) {
   mc.style.border='1px solid '+(allS==='critical'?'var(--red-border)':'var(--green-border)');
 }
 
-function renderStats(id, vals, unit, dec, th) {
-  if (!vals.length) return;
-  const avg=vals.reduce((a,b)=>a+b,0)/vals.length, peak=Math.max(...vals), min=Math.min(...vals);
-  const std=Math.sqrt(vals.reduce((a,v)=>a+(v-avg)**2,0)/vals.length);
-  const pc=peak>th.critical?'var(--red)':peak>th.warning?'var(--amber)':'var(--text-primary)';
-  document.getElementById(id).innerHTML = [
-    ['Average', avg.toFixed(dec)+' '+unit, 'var(--text-primary)'],
-    ['Peak Value', peak.toFixed(dec)+' '+unit, pc],
-    ['Minimum', min.toFixed(dec)+' '+unit, 'var(--green)'],
-    ['Std. Dev.','± '+std.toFixed(dec)+' '+unit,'var(--text-secondary)'],
-    ['Samples', vals.length+' readings','var(--text-muted)'],
-  ].map(([l,v,c])=>`<div class="stat-row"><span class="stat-label">${l}</span><span class="stat-val" style="color:${c}">${v}</span></div>`).join('');
-}
-
-function updateCharts() {
+function updateCharts(){
   if (!history.length) return;
-  const labels = history.map(h=>h.time);
+  const labels=history.map(h=>h.time);
   const vibs=history.map(h=>h.vibration), curs=history.map(h=>h.current), tmps=history.map(h=>h.temperature);
-
   trendChart.data.labels=labels;
   trendChart.data.datasets[0].data=vibs.map(v=>+Math.min(110,(v/TH.vibration.critical)*100).toFixed(1));
   trendChart.data.datasets[1].data=curs.map(v=>+Math.min(110,(v/TH.current.critical)*100).toFixed(1));
   trendChart.data.datasets[2].data=tmps.map(v=>+Math.min(110,(v/TH.temperature.critical)*100).toFixed(1));
   trendChart.update('none');
-
-  if (activePage==='vibration') {
-    vibTrend.data.labels=labels; vibTrend.data.datasets[0].data=vibs; vibTrend.data.datasets[1].data=calcRolling(vibs); vibTrend.update('none');
-    const dv=[{r:'0–1.5',f:vibs.filter(v=>v<1.5).length,c:'#10b981'},{r:'1.5–2.5',f:vibs.filter(v=>v>=1.5&&v<2.5).length,c:'#10b981'},{r:'2.5–3.0',f:vibs.filter(v=>v>=2.5&&v<3.0).length,c:'#6366f1'},{r:'3.0–3.5',f:vibs.filter(v=>v>=3.0&&v<3.5).length,c:'#f59e0b'},{r:'>3.5',f:vibs.filter(v=>v>=3.5).length,c:'#ef4444'}];
-    vibDist.data.labels=dv.map(d=>d.r); vibDist.data.datasets[0].data=dv.map(d=>d.f); vibDist.data.datasets[0].backgroundColor=dv.map(d=>d.c); vibDist.update('none');
+  if (activePage==='vibration'){
+    vibTrend.data.labels=labels; vibTrend.data.datasets[0].data=vibs; vibTrend.update('none');
+    const noF=vibs.filter(v=>v===0).length, fF=vibs.filter(v=>v===1).length;
+    vibDist.data.labels=['0 – No Fault','1 – Fault']; vibDist.data.datasets[0].data=[noF,fF]; vibDist.data.datasets[0].backgroundColor=['#10b981','#ef4444']; vibDist.update('none');
     vibROC.data.labels=labels.slice(-20); vibROC.data.datasets[0].data=calcROC(vibs.slice(-20)); vibROC.update('none');
   }
-  if (activePage==='current') {
-    curTrend.data.labels=labels; curTrend.data.datasets[0].data=curs; curTrend.data.datasets[1].data=calcRolling(curs); curTrend.update('none');
-    const dc=[{r:'<14A',f:curs.filter(v=>v<14).length,c:'#6366f1'},{r:'14–15.5',f:curs.filter(v=>v>=14&&v<15.5).length,c:'#10b981'},{r:'15.5–16.5',f:curs.filter(v=>v>=15.5&&v<16.5).length,c:'#3b82f6'},{r:'16.5–17.5',f:curs.filter(v=>v>=16.5&&v<17.5).length,c:'#f59e0b'},{r:'>17.5',f:curs.filter(v=>v>=17.5).length,c:'#ef4444'}];
+  if (activePage==='current'){
+    const curRange=dynamicRange(curs,0,TH.current.critical*1.2);
+    curTrend.data.labels=labels; curTrend.data.datasets[0].data=curs; curTrend.data.datasets[1].data=calcRolling(curs);
+    curTrend.options.scales.y.min=curRange.min; curTrend.options.scales.y.max=curRange.max; curTrend.update('none');
+    const curMax=Math.max(...curs,TH.current.critical), step=curMax/5;
+    const dc=[
+      {r:`0–${step.toFixed(1)}A`,f:curs.filter(v=>v<step).length,c:'#10b981'},
+      {r:`${step.toFixed(1)}–${(step*2).toFixed(1)}A`,f:curs.filter(v=>v>=step&&v<step*2).length,c:'#3b82f6'},
+      {r:`${(step*2).toFixed(1)}–${(step*3).toFixed(1)}A`,f:curs.filter(v=>v>=step*2&&v<step*3).length,c:'#6366f1'},
+      {r:`${(step*3).toFixed(1)}–${TH.current.warning.toFixed(1)}A`,f:curs.filter(v=>v>=step*3&&v<TH.current.warning).length,c:'#f59e0b'},
+      {r:`>${TH.current.warning.toFixed(1)}A`,f:curs.filter(v=>v>=TH.current.warning).length,c:'#ef4444'},
+    ];
     curDist.data.labels=dc.map(d=>d.r); curDist.data.datasets[0].data=dc.map(d=>d.f); curDist.data.datasets[0].backgroundColor=dc.map(d=>d.c); curDist.update('none');
     curROC.data.labels=labels.slice(-20); curROC.data.datasets[0].data=calcROC(curs.slice(-20)); curROC.update('none');
   }
-  if (activePage==='temperature') {
-    tmpTrend.data.labels=labels; tmpTrend.data.datasets[0].data=tmps; tmpTrend.data.datasets[1].data=calcRolling(tmps); tmpTrend.update('none');
-    const dt=[{r:'<62°C',f:tmps.filter(v=>v<62).length,c:'#6366f1'},{r:'62–69°C',f:tmps.filter(v=>v>=62&&v<69).length,c:'#10b981'},{r:'69–72°C',f:tmps.filter(v=>v>=69&&v<72).length,c:'#3b82f6'},{r:'72–75°C',f:tmps.filter(v=>v>=72&&v<75).length,c:'#f59e0b'},{r:'>75°C',f:tmps.filter(v=>v>=75).length,c:'#ef4444'}];
+  if (activePage==='temperature'){
+    const tmpRange=dynamicRange(tmps,0,TH.temperature.critical*1.15);
+    tmpTrend.data.labels=labels; tmpTrend.data.datasets[0].data=tmps; tmpTrend.data.datasets[1].data=calcRolling(tmps);
+    tmpTrend.options.scales.y.min=tmpRange.min; tmpTrend.options.scales.y.max=tmpRange.max; tmpTrend.update('none');
+    const dt=[
+      {r:`<${TH.temperature.warning*0.5}°C`,f:tmps.filter(v=>v<TH.temperature.warning*0.5).length,c:'#6366f1'},
+      {r:`${(TH.temperature.warning*0.5).toFixed(0)}–${(TH.temperature.warning*0.75).toFixed(0)}°C`,f:tmps.filter(v=>v>=TH.temperature.warning*0.5&&v<TH.temperature.warning*0.75).length,c:'#10b981'},
+      {r:`${(TH.temperature.warning*0.75).toFixed(0)}–${TH.temperature.warning}°C`,f:tmps.filter(v=>v>=TH.temperature.warning*0.75&&v<TH.temperature.warning).length,c:'#3b82f6'},
+      {r:`${TH.temperature.warning}–${TH.temperature.critical}°C`,f:tmps.filter(v=>v>=TH.temperature.warning&&v<TH.temperature.critical).length,c:'#f59e0b'},
+      {r:`>${TH.temperature.critical}°C`,f:tmps.filter(v=>v>=TH.temperature.critical).length,c:'#ef4444'},
+    ];
     tmpDist.data.labels=dt.map(d=>d.r); tmpDist.data.datasets[0].data=dt.map(d=>d.f); tmpDist.data.datasets[0].backgroundColor=dt.map(d=>d.c); tmpDist.update('none');
     tmpROC.data.labels=labels.slice(-20); tmpROC.data.datasets[0].data=calcROC(tmps.slice(-20)); tmpROC.update('none');
   }
 }
 
-// ── Connection status helpers ─────────────────────────────────────────────────
-function setConnected() {
-  const badge = document.getElementById('firebase-badge');
-  badge.className = 'header-badge badge-green';
-  badge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg> Firestore Live`;
+// ── Connection helpers ────────────────────────────────────────────────────────
+function setConnected(){
+  const b=document.getElementById('firebase-badge');
+  b.className='header-badge badge-green';
+  b.innerHTML=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg> Firestore Live`;
   document.getElementById('sb-status').classList.remove('disconnected');
-  document.getElementById('sb-status-text').textContent = 'Live · Firestore';
+  document.getElementById('sb-status-text').textContent='Live · Firestore';
   document.getElementById('error-banner').classList.add('hidden');
 }
-function setDisconnected(msg) {
-  document.getElementById('firebase-badge').className = 'header-badge badge-red';
-  document.getElementById('firebase-badge').innerHTML = 'Disconnected';
+function setDisconnected(msg){
+  document.getElementById('firebase-badge').className='header-badge badge-red';
+  document.getElementById('firebase-badge').innerHTML='Disconnected';
   document.getElementById('sb-status').classList.add('disconnected');
-  document.getElementById('sb-status-text').textContent = 'Disconnected';
-  if (msg) {
-    document.getElementById('error-banner').classList.remove('hidden');
-    document.getElementById('error-text').textContent = 'Firestore error: ' + msg;
-  }
+  document.getElementById('sb-status-text').textContent='Disconnected';
+  if (msg){ document.getElementById('error-banner').classList.remove('hidden'); document.getElementById('error-text').textContent='Firestore error: '+msg; }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  FIRESTORE INIT  — reads from PredictionData/latest  &  .../history
+//  FIRESTORE
+//  Expects PredictionData/latest to have:
+//    current, vibration, temperature, score, faultLabel (string), fault (int), timestamp
 // ══════════════════════════════════════════════════════════════════════════════
 try {
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // ── 1) Live latest reading — onSnapshot fires every time Python writes ────
-  db.collection('PredictionData').doc('latest')
-    .onSnapshot(snap => {
-      if (!snap.exists) return;
-      const d = snap.data();
-      current = {
-        vibration:   +d.vibration   || 0,
-        current:     +d.current     || 0,
-        temperature: +d.temperature || 0,
-        score:       d.score !== undefined ? +d.score : null,
-        fault:       d.fault !== undefined ? +d.fault : null,
-        timestamp:   d.timestamp || null,
-      };
-      setConnected();
-      updateUI();
-    }, err => setDisconnected(err.message));
+  db.collection('PredictionData').doc('latest').onSnapshot(snap => {
+    if (!snap.exists) return;
+    const d = snap.data();
+    current = {
+      vibration:   +d.vibration   || 0,
+      current:     +d.current     || 0,
+      temperature: +d.temperature || 0,
+      score:       d.score !== undefined ? +d.score : null,
+      fault:       d.fault !== undefined ? +d.fault : null,
+      faultLabel:  d.faultLabel   || null,   // string label from healthtrain STATE_MAP
+      timestamp:   d.timestamp    || null,
+    };
+    setConnected();
+    updateUI();
+  }, err => setDisconnected(err.message));
 
-  // ── 2) History sub-collection — ordered by timestamp, last 60 docs ────────
-  db.collection('PredictionData').doc('latest')
-    .collection('history')
-    .orderBy('timestamp', 'asc')
-    .limitToLast(MAX_HISTORY)
+  db.collection('PredictionData').doc('latest').collection('history')
+    .orderBy('timestamp','asc').limitToLast(MAX_HISTORY)
     .onSnapshot(snap => {
       if (snap.empty) return;
       history = snap.docs.map(doc => {
-        const d = doc.data();
-        const t = d.timestamp ? new Date(d.timestamp) : new Date();
-        return {
-          time:        t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),
-           vibration:   +d.vibration   || 0,
-          current:     +d.current     || 0,
-          temperature: +d.temperature || 0,
-          score:       d.score !== undefined ? +d.score : null,
-          fault:       d.fault !== undefined ? +d.fault : null,
-          timestamp:   d.timestamp || null,
-        };
+        const d=doc.data(), t=d.timestamp?new Date(d.timestamp):new Date();
+        return { time:t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}), vibration:+d.vibration||0, current:+d.current||0, temperature:+d.temperature||0 };
       });
       updateCharts();
-    }, err => console.warn('History snapshot error:', err.message));
+    }, err => console.warn('History error:', err.message));
 
-} catch(e) {
-  setDisconnected(e.message);
-}
+} catch(e) { setDisconnected(e.message); }
 </script>
 </body>
 </html>
