@@ -597,8 +597,8 @@ const TH = {
   // Vibration: 0.0-0.3 OK, 0.3-0.5 Warn, 0.5+ Crit
   vibration:   { warning: 0.3,  critical: 0.5,  unit: '' },
   // Temperature: 15-30 OK, 30-40 Warn, 40-60+ Crit
-  temperature: { warning: 30,   critical: 40,   unit: '°C' }, 
-  current:     { warning: 8.0,  critical: 10.0, unit: 'A' },
+  temperature: { warning: 30,   critical: 60,   unit: '°C' }, 
+  current:     { warning: 0.3,  critical: 0.5, unit: 'A' },
 };
 
 
@@ -638,33 +638,63 @@ function dynamicRange(vals, minFloor, maxCeil, pad=0.1) {
 //  3. Fall back to numeric 'fault' code if label is absent
 // ══════════════════════════════════════════════════════════════════════════════
 function resolveFaultLabel(d) {
-  // Rule: both current and vibration are 0 → motor is off/idle → stable
+  let label = d.faultLabel || 'stable';
+  let code = d.fault !== null ? +d.fault : 0;
+  const isVibAtFault = d.vibration == 1;
+  const isCurAtFault = d.current >= 0.3;
+  // Force combined label if both are high
+  if (isVibAtFault && isCurAtFault) {
+    return { label: 'curr-vibration', code: 6 }; // This now returns an array of length 2
+  }
+  if (isCurAtFault && label === 'stable') {
+    return { label: 'current_fault_only', code: 4 };
+  }
+
+
+  // RULE: If motor is off (Current = 0), ignore Temp/Current components of ML diagnosis
   if (d.current === 0) {
+    // If the sensor sees vibration OR the ML thinks there is vibration
+    if (d.vibration >= TH.vibration.warning || label.includes('vib')) {
+      return { label: 'vibrational problem', code: STATE_MAP['vibrational problem'] };
+    }
+    // Motor off and no vibration = stable
     return { label: 'stable', code: 0 };
   }
 
-  // Use string label from Firestore (preferred — written by Python predict)
-  if (d.faultLabel && STATE_MAP.hasOwnProperty(d.faultLabel)) {
-    return { label: d.faultLabel, code: STATE_MAP[d.faultLabel] };
+  // RULE: If motor is on, trust ML, but ensure it captures Vibration faults
+  if (d.vibration >= TH.vibration.warning && label === 'stable') {
+    return { label: 'vibrational problem', code: STATE_MAP['vibrational problem'] };
   }
 
-  // Fall back: numeric fault code → reverse lookup
-  if (d.fault !== null && d.fault !== undefined) {
-    const code = +d.fault;
-    const label = Object.keys(STATE_MAP).find(k => STATE_MAP[k] === code) || 'stable';
-    return { label, code };
-  }
-
-  return { label: 'stable', code: 0 };
+  return { label, code };
 }
 
 // ── Build fault list from ML label (replaces old rule-based detectFaults) ─────
 function buildFaultsFromLabel(label) {
-  if (label === 'stable') return [];
-  const info = FAULT_INFO[label] || FAULT_INFO['stable'];
-  const type  = info.type === 'critical' ? 'critical' : 'warning';
-  return [{ type, param: label.replace(/-/g,' ').replace(/_/g,' '), msg: info.msg, val: label.toUpperCase(), rec: info.rec }];
+  // If stable, the array is empty. Length = 0.
+  if (!label || label === 'stable') return [];
+
+  // 1. Logic for "curr-vibration" (This forces length to 2)
+  if (label === 'curr-vibration') {
+    return [
+      { type: 'critical', param: 'Current', msg: 'Electrical Overload', rec: 'Check load.' },
+      { type: 'critical', param: 'Vibration', msg: 'Mechanical Stress', rec: 'Inspect bearings.' }
+    ];
+  }
+
+  // 2. Logic for single faults (This results in length 1)
+  if (label === 'vibrational problem') {
+    return [{ type: 'warning', param: 'Vibration', msg: 'High shaking', rec: 'Check mounts.' }];
+  }
+  
+  if (label === 'current_fault_only') {
+    return [{ type: 'warning', param: 'Current', msg: 'High draw', rec: 'Verify supply.' }];
+  }
+
+  // Fallback for other labels
+  return [];
 }
+
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 let activePage = 'dashboard';
