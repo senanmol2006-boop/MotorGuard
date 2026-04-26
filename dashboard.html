@@ -447,9 +447,9 @@ header { height: var(--header-h); background: #fff; border-bottom: 1px solid var
             <div class="reading-big"><span class="reading-number" id="cur-big">—</span><span class="reading-unit">A</span></div>
             <div class="reading-meta"><span class="status-badge" id="cur-badge">—</span><span class="trend-label trend-stable" id="cur-trend">—</span></div>
             <div class="progress-wrap">
-              <div class="progress-labels"><span>0 A</span><span id="cur-pct">—</span><span>10 A</span></div>
+              <div class="progress-labels"><span>0 A</span><span id="cur-pct">—</span><span>0.5 A</span></div>
               <div class="progress-bar"><div class="progress-fill" id="cur-bar" style="width:0%;background:var(--green)"></div></div>
-              <div class="progress-ticks" style="font-size:.65rem"><span style="color:var(--amber)">↑ Warn: 8A</span><span style="color:var(--red)">Crit: 10A ↑</span></div>
+              <div class="progress-ticks" style="font-size:.65rem"><span style="color:var(--amber)">↑ Warn: 0.3A</span><span style="color:var(--red)">Crit: >0.5A ↑</span></div>
             </div>
             <div class="sub-metric">
               <div class="sub-metric-row"><span>Motor Load</span><strong id="cur-load" style="color:var(--green)">—</strong></div>
@@ -459,11 +459,11 @@ header { height: var(--header-h); background: #fff; border-bottom: 1px solid var
           <div class="card">
             <div class="card-title">Threshold Limits</div>
             <div style="margin-bottom:10px">
-              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">0 – 8 A</span></div>
-              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">8 – 10 A</span></div>
-              <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 10 A</span></div>
+              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">0 – 0.3 A</span></div>
+              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">0.3 – 0.5 A</span></div>
+              <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 0.5 A</span></div>
             </div>
-            <div class="threshold-note"><p>Rated Motor Current</p><span>Warning at 8A · Critical at 10A</span></div>
+            <div class="threshold-note"><p>Rated Motor Current</p><span>Warning at 0.3A · Critical at 0.5A</span></div>
           </div>
           <div class="card">
             <div class="card-title">Current Status</div>
@@ -499,24 +499,24 @@ header { height: var(--header-h); background: #fff; border-bottom: 1px solid var
             <div class="reading-big"><span class="reading-number" id="tmp-big">—</span><span class="reading-unit">°C</span></div>
             <div class="reading-meta"><span class="status-badge" id="tmp-badge">—</span><span class="trend-label trend-stable" id="tmp-trend">—</span></div>
             <div class="progress-wrap">
-              <div class="progress-labels"><span>0°C</span><span id="tmp-pct">—</span><span>70°C</span></div>
+              <div class="progress-labels"><span>0°C</span><span id="tmp-pct">—</span><span>60°C</span></div>
               <div class="progress-bar"><div class="progress-fill" id="tmp-bar" style="width:0%;background:var(--green)"></div></div>
-              <div class="progress-ticks" style="font-size:.65rem"><span style="color:var(--amber)">↑ Warn: 60°C</span><span style="color:var(--red)">Crit: 70°C ↑</span></div>
+              <div class="progress-ticks" style="font-size:.65rem"><span style="color:var(--amber)">↑ Warn: 30°C</span><span style="color:var(--red)">Crit: 60°C ↑</span></div>
             </div>
             <div class="sub-metric">
               <div class="sub-metric-row"><span>Thermal Headroom</span><strong id="tmp-headroom" style="color:var(--green)">—</strong></div>
               <div class="sub-metric-bar"><div class="sub-metric-fill" id="tmp-headroom-bar" style="width:100%;background:var(--green)"></div></div>
-              <div class="sub-metric-note">Remaining margin to critical (70°C)</div>
+              <div class="sub-metric-note">Remaining margin to critical (60°C)</div>
             </div>
           </div>
           <div class="card">
             <div class="card-title">Threshold Limits</div>
             <div style="margin-bottom:10px">
-              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange">&lt; 60°C</span></div>
-              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">60 – 70°C</span></div>
-              <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 70°C</span></div>
+              <div class="threshold-row ok"><div class="tl"><div class="tdot" style="background:var(--green)"></div><span class="tname">Normal Operation</span></div><span class="trange"> 15 – 30°C</span></div>
+              <div class="threshold-row warn"><div class="tl"><div class="tdot" style="background:var(--amber)"></div><span class="tname">Warning Zone</span></div><span class="trange">30 – 40°C</span></div>
+              <div class="threshold-row crit"><div class="tl"><div class="tdot" style="background:var(--red)"></div><span class="tname">Critical Fault</span></div><span class="trange">&gt; 60°C</span></div>
             </div>
-            <div class="threshold-note"><p>Motor Thermal Protection</p><span>Warning at 60°C · Critical at 70°C</span></div>
+            <div class="threshold-note"><p>Motor Thermal Protection</p><span>Warning at 60°C · Critical at 60°C</span></div>
           </div>
           <div class="card">
             <div class="card-title">Thermal Status</div>
@@ -594,10 +594,13 @@ const FAULT_INFO = {
 
 // ── Thresholds (sensor-level, for reading cards) ──────────────────────────────
 const TH = {
-  vibration:   { warning: 0.5,  critical: 1.0,  unit: '' },
+  // Vibration: 0.0-0.3 OK, 0.3-0.5 Warn, 0.5+ Crit
+  vibration:   { warning: 0.3,  critical: 0.5,  unit: '' },
+  // Temperature: 15-30 OK, 30-40 Warn, 40-60+ Crit
+  temperature: { warning: 30,   critical: 40,   unit: '°C' }, 
   current:     { warning: 8.0,  critical: 10.0, unit: 'A' },
-  temperature: { warning: 60,   critical: 70,   unit: '°C' },
 };
+
 
 // ── App state ─────────────────────────────────────────────────────────────────
 let history = [];
@@ -636,7 +639,7 @@ function dynamicRange(vals, minFloor, maxCeil, pad=0.1) {
 // ══════════════════════════════════════════════════════════════════════════════
 function resolveFaultLabel(d) {
   // Rule: both current and vibration are 0 → motor is off/idle → stable
-  if (d.current === 0 ) {
+  if (d.current === 0) {
     return { label: 'stable', code: 0 };
   }
 
