@@ -951,8 +951,22 @@ const tmpROC   = makeROCChart('tmp-roc-chart','#f97316');
 
 // ── UI update ─────────────────────────────────────────────────────────────────
 function updateUI() {
+  
   if (!current) return;
   const d = current;
+  if (isStale) {
+  document.getElementById('sb-fault-status').textContent = '⚠ NO SIGNAL';
+  document.getElementById('sb-fault-status').style.color = '#fca5a5';
+
+  document.getElementById('sb-health').textContent = '—';
+  document.getElementById('health-header-text').textContent = 'Sensor Offline';
+
+  return; // stop normal UI updates
+}
+  const now = Date.now();
+  const last = current.timestamp ? new Date(current.timestamp).getTime() : 0;
+
+  const isStale = now - last > 5000; // 5 seconds threshold 
   faults = detectFaults(d);
 
   // Use ML score from Firestore (set by Keras model in Python)
