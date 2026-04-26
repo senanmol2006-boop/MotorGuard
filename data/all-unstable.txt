@@ -1,0 +1,24 @@
+Complete bearing seizure
+Severe rotor-to-stator rub
+Partial shaft fracture
+Severe mechanical unbalance
+Complete coupling failure
+Phase-to-phase winding short circuit
+Winding-to-frame short circuit
+Severe voltage unbalance with overload
+Rotor cage complete failure
+Severe rotor eccentricity with winding damage
+Bearing seizure causing rotor lock
+Stator winding fault combined with mechanical unbalance
+Overloaded machine with deteriorated bearings
+Gearbox catastrophic gear failure
+Gearbox bearing seizure
+Drivetrain torsional resonance
+Severe cavitation (pumps/compressors)
+Foreign object ingestion (compressors/turbines)
+Impeller complete failure (pumps)
+Rotor winding short circuit (wound rotor motors)
+Commutator fault (DC machines)
+Brush gear failure (DC machines/slip ring motors)
+Thermal runaway in insulation
+Multiple simultaneous faults (any combination above)

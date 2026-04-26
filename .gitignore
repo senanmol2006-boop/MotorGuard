@@ -1,0 +1,10 @@
+# Firebase credentials
+*.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Models (optional)
+*.pkl
+*.keras

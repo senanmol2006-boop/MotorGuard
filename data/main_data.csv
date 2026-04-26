@@ -1,0 +1,300 @@
+0.07,0,23.4,stable
+0.10,0,25.1,stable
+0.06,0,21.8,stable
+0.28,0,24.7,current_fault_only
+0.05,1,22.6,vibrational problem
+0.09,0,36.9,over temp
+0.27,1,25.4,curr-vibration
+0.08,1,37.1,vib-temp
+0.26,0,35.6,curr-temp
+0.30,1,38.0,all
+0.11,0,24.0,stable
+0.13,0,26.5,stable
+0.29,0,25.3,current_fault_only
+0.04,1,21.9,vibrational problem
+0.10,0,37.5,over temp
+0.25,1,24.8,curr-vibration
+0.06,1,36.2,vib-temp
+0.28,0,34.7,curr-temp
+0.29,1,37.8,all
+0.08,0,22.7,stable
+0.09,0,23.9,stable
+0.27,0,24.9,current_fault_only
+0.07,1,22.4,vibrational problem
+0.12,0,38.0,over temp
+0.26,1,25.1,curr-vibration
+0.05,1,35.9,vib-temp
+0.30,0,36.3,curr-temp
+0.28,1,37.6,all
+0.10,0,24.6,stable
+0.06,0,22.1,stable
+0.25,0,23.8,current_fault_only
+0.08,1,21.7,vibrational problem
+0.09,0,36.8,over temp
+0.27,1,24.5,curr-vibration
+0.07,1,37.4,vib-temp
+0.29,0,35.2,curr-temp
+0.30,1,38.0,all
+0.11,0,23.3,stable
+0.05,0,24.8,stable
+0.26,0,25.0,current_fault_only
+0.06,1,22.2,vibrational problem
+0.10,0,37.0,over temp
+0.28,1,24.9,curr-vibration
+0.09,1,36.7,vib-temp
+0.27,0,35.8,curr-temp
+0.29,1,37.9,all
+0.08,0,23.1,stable
+0.12,0,26.2,stable
+0.25,0,24.4,current_fault_only
+0.04,1,21.5,vibrational problem
+0.07,0,22.9,stable
+0.10,0,25.7,stable
+0.05,0,23.2,stable
+0.28,0,24.6,current_fault_only
+0.06,1,22.1,vibrational problem
+0.09,0,37.3,over temp
+0.27,1,25.2,curr-vibration
+0.08,1,36.9,vib-temp
+0.26,0,35.5,curr-temp
+0.30,1,38.0,all
+0.11,0,24.4,stable
+0.13,0,26.0,stable
+0.29,0,25.4,current_fault_only
+0.04,1,21.8,vibrational problem
+0.10,0,37.8,over temp
+0.25,1,24.7,curr-vibration
+0.06,1,36.4,vib-temp
+0.28,0,34.8,curr-temp
+0.29,1,37.7,all
+0.08,0,22.5,stable
+0.09,0,23.7,stable
+0.27,0,24.8,current_fault_only
+0.07,1,22.0,vibrational problem
+0.12,0,38.0,over temp
+0.26,1,25.0,curr-vibration
+0.05,1,35.7,vib-temp
+0.30,0,36.1,curr-temp
+0.28,1,37.5,all
+0.10,0,24.2,stable
+0.06,0,22.3,stable
+0.25,0,23.9,current_fault_only
+0.08,1,21.6,vibrational problem
+0.09,0,36.7,over temp
+0.27,1,24.4,curr-vibration
+0.07,1,37.2,vib-temp
+0.29,0,35.3,curr-temp
+0.30,1,38.0,all
+0.11,0,23.6,stable
+0.05,0,24.7,stable
+0.26,0,25.2,current_fault_only
+0.06,1,22.5,vibrational problem
+0.10,0,37.1,over temp
+0.28,1,24.8,curr-vibration
+0.09,1,36.6,vib-temp
+0.27,0,35.9,curr-temp
+0.29,1,37.8,all
+0.08,0,23.0,stable
+0.12,0,26.4,stable
+0.25,0,24.5,current_fault_only
+0.04,1,21.4,vibrational problem
+0.08,0,24.1,stable
+0.11,0,26.3,stable
+0.05,0,22.8,stable
+0.29,0,25.0,current_fault_only
+0.07,1,23.9,vibrational problem
+0.09,0,37.2,over temp
+0.28,1,24.7,curr-vibration
+0.06,1,36.5,vib-temp
+0.27,0,35.9,curr-temp
+0.30,1,38.0,all
+0.10,0,21.7,stable
+0.12,0,27.1,stable
+0.26,0,24.5,current_fault_only
+0.04,1,22.3,vibrational problem
+0.09,0,36.8,over temp
+0.25,1,25.8,curr-vibration
+0.07,1,37.0,vib-temp
+0.28,0,34.9,curr-temp
+0.29,1,37.8,all
+0.06,0,20.4,stable
+0.13,0,23.7,stable
+0.27,0,26.0,current_fault_only
+0.05,1,24.2,vibrational problem
+0.08,0,38.0,over temp
+0.26,1,23.5,curr-vibration
+0.09,1,35.8,vib-temp
+0.30,0,36.2,curr-temp
+0.28,1,37.5,all
+0.11,0,22.9,stable
+0.07,0,25.4,stable
+0.25,0,24.8,current_fault_only
+0.06,1,21.5,vibrational problem
+0.10,0,36.9,over temp
+0.27,1,26.1,curr-vibration
+0.05,1,37.6,vib-temp
+0.29,0,35.5,curr-temp
+0.30,1,38.0,all
+0.08,0,24.0,stable
+0.12,0,27.3,stable
+0.26,0,25.1,current_fault_only
+0.04,1,23.1,vibrational problem
+0.09,0,37.4,over temp
+0.28,1,24.6,curr-vibration
+0.06,1,36.8,vib-temp
+0.27,0,35.7,curr-temp
+0.29,1,37.9,all
+0.10,0,21.9,stable
+0.11,0,26.7,stable
+0.25,0,24.3,current_fault_only
+0.05,1,22.0,vibrational problem
+0.08,0,24.1,stable
+0.11,0,26.3,stable
+0.05,0,22.8,stable
+0.29,0,25.0,current_fault_only
+0.07,1,23.9,vibrational problem
+0.09,0,37.2,over temp
+0.28,1,24.7,curr-vibration
+0.06,1,36.5,vib-temp
+0.27,0,35.9,curr-temp
+0.30,1,38.0,all
+0.10,0,21.7,stable
+0.12,0,27.1,stable
+0.26,0,24.5,current_fault_only
+0.04,1,22.3,vibrational problem
+0.09,0,36.8,over temp
+0.25,1,25.8,curr-vibration
+0.07,1,37.0,vib-temp
+0.28,0,34.9,curr-temp
+0.29,1,37.8,all
+0.06,0,20.4,stable
+0.13,0,23.7,stable
+0.27,0,26.0,current_fault_only
+0.05,1,24.2,vibrational problem
+0.08,0,38.0,over temp
+0.26,1,23.5,curr-vibration
+0.09,1,35.8,vib-temp
+0.30,0,36.2,curr-temp
+0.28,1,37.5,all
+0.11,0,22.9,stable
+0.07,0,25.4,stable
+0.25,0,24.8,current_fault_only
+0.06,1,21.5,vibrational problem
+0.10,0,36.9,over temp
+0.27,1,26.1,curr-vibration
+0.05,1,37.6,vib-temp
+0.29,0,35.5,curr-temp
+0.30,1,38.0,all
+0.08,0,24.0,stable
+0.12,0,27.3,stable
+0.26,0,25.1,current_fault_only
+0.04,1,23.1,vibrational problem
+0.09,0,37.4,over temp
+0.28,1,24.6,curr-vibration
+0.06,1,36.8,vib-temp
+0.27,0,35.7,curr-temp
+0.29,1,37.9,all
+0.10,0,21.9,stable
+0.11,0,26.7,stable
+0.25,0,24.3,current_fault_only
+0.05,1,22.0,vibrational problem
+0.08,0,24.1,stable
+0.11,0,26.3,stable
+0.05,0,22.8,stable
+0.29,0,25.0,current_fault_only
+0.07,1,23.9,vibrational problem
+0.09,0,37.2,over temp
+0.28,1,24.7,curr-vibration
+0.06,1,36.5,vib-temp
+0.27,0,35.9,curr-temp
+0.30,1,38.0,all
+0.10,0,21.7,stable
+0.12,0,27.1,stable
+0.26,0,24.5,current_fault_only
+0.04,1,22.3,vibrational problem
+0.09,0,36.8,over temp
+0.25,1,25.8,curr-vibration
+0.07,1,37.0,vib-temp
+0.28,0,34.9,curr-temp
+0.29,1,37.8,all
+0.06,0,20.4,stable
+0.13,0,23.7,stable
+0.27,0,26.0,current_fault_only
+0.05,1,24.2,vibrational problem
+0.08,0,38.0,over temp
+0.26,1,23.5,curr-vibration
+0.09,1,35.8,vib-temp
+0.30,0,36.2,curr-temp
+0.28,1,37.5,all
+0.11,0,22.9,stable
+0.07,0,25.4,stable
+0.25,0,24.8,current_fault_only
+0.06,1,21.5,vibrational problem
+0.10,0,36.9,over temp
+0.27,1,26.1,curr-vibration
+0.05,1,37.6,vib-temp
+0.29,0,35.5,curr-temp
+0.30,1,38.0,all
+0.08,0,24.0,stable
+0.12,0,27.3,stable
+0.26,0,25.1,current_fault_only
+0.04,1,23.1,vibrational problem
+0.09,0,37.4,over temp
+0.28,1,24.6,curr-vibration
+0.06,1,36.8,vib-temp
+0.27,0,35.7,curr-temp
+0.29,1,37.9,all
+0.10,0,21.9,stable
+0.11,0,26.7,stable
+0.25,0,24.3,current_fault_only
+0.05,1,22.0,vibrational problem
+0.08,0,24.1,stable
+0.11,0,26.3,stable
+0.05,0,22.8,stable
+0.29,0,25.0,current_fault_only
+0.07,1,23.9,vibrational problem
+0.09,0,37.2,over temp
+0.28,1,24.7,curr-vibration
+0.06,1,36.5,vib-temp
+0.27,0,35.9,curr-temp
+0.30,1,38.0,all
+0.10,0,21.7,stable
+0.12,0,27.1,stable
+0.26,0,24.5,current_fault_only
+0.04,1,22.3,vibrational problem
+0.09,0,36.8,over temp
+0.25,1,25.8,curr-vibration
+0.07,1,37.0,vib-temp
+0.28,0,34.9,curr-temp
+0.29,1,37.8,all
+0.06,0,20.4,stable
+0.13,0,23.7,stable
+0.27,0,26.0,current_fault_only
+0.05,1,24.2,vibrational problem
+0.08,0,38.0,over temp
+0.26,1,23.5,curr-vibration
+0.09,1,35.8,vib-temp
+0.30,0,36.2,curr-temp
+0.28,1,37.5,all
+0.11,0,22.9,stable
+0.07,0,25.4,stable
+0.25,0,24.8,current_fault_only
+0.06,1,21.5,vibrational problem
+0.10,0,36.9,over temp
+0.27,1,26.1,curr-vibration
+0.05,1,37.6,vib-temp
+0.29,0,35.5,curr-temp
+0.30,1,38.0,all
+0.08,0,24.0,stable
+0.12,0,27.3,stable
+0.26,0,25.1,current_fault_only
+0.04,1,23.1,vibrational problem
+0.09,0,37.4,over temp
+0.28,1,24.6,curr-vibration
+0.06,1,36.8,vib-temp
+0.27,0,35.7,curr-temp
+0.29,1,37.9,all
+0.10,0,21.9,stable
+0.11,0,26.7,stable
+0.25,0,24.3,current_fault_only
+0.05,1,22.0,vibrational problem
